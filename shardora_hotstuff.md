@@ -1,4 +1,7 @@
 ---
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+- jekyll-remote-theme
 layout: page
 title: "Shardora HotStuff 工程设计与实现"
 permalink: /shardora_hotstuff
