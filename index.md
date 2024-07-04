@@ -1,5 +1,5 @@
 ---
 title: Coding On Jupiter
-layout: template
+layout: page
 filename: index.md
 --- 

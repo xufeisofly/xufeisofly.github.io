@@ -1,5 +1,5 @@
 ---
-layout: template
+layout: page
 title: "Shardora HotStuff 工程设计与实现"
 filename: "shardora_hotstuff.md"
 ---
