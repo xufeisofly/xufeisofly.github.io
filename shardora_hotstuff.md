@@ -1,10 +1,7 @@
 ---
-remote_theme: pages-themes/cayman@v0.2.0
-plugins:
-- jekyll-remote-theme
-layout: page
+layout: template
 title: "Shardora HotStuff 工程设计与实现"
-permalink: /docs/shardora-hotstuff
+filename: "shardora_hotstuff.md"
 ---
 
 *本文内容源于 [Shardora](https://github.com/tenondvpn/shardora)对 HotStuff 的工程实现。Shardora 是一条基于多分片扩容、多交易池并发共识的高性能区块链，使用 PoCE + HotStuff 来保证共识的性能与安全性。*
