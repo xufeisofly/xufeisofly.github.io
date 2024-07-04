@@ -1,7 +1,7 @@
-layout: post
+layout: page
 title: "Shardora HotStuff 工程设计与实现"
-date: 2024-07-04 10:24:00 -0000
-categories: BlockChain HotStuff BFT
+permalink: /shardora_hotstuff
+
 
 *本文内容源于 [Shardora](https://github.com/tenondvpn/shardora)对 HotStuff 的工程实现。Shardora 是一条基于多分片扩容、多交易池并发共识的高性能区块链，使用 PoCE + HotStuff 来保证共识的性能与安全性。*
 
