@@ -1,3 +1,7 @@
+layout: page
+title: "Shardora HotStuff 工程设计与实现"
+permalink: /shardora_hotstuff
+
 *本文内容源于 [Shardora](https://github.com/tenondvpn/shardora)对 HotStuff 的工程实现。Shardora 是一条基于多分片扩容、多交易池并发共识的高性能区块链，使用 PoCE + HotStuff 来保证共识的性能与安全性。*
 
 # 1 共识算法概述
@@ -630,12 +634,22 @@ Shardora 目前仍处于开发阶段，你可以前往[Github 项目地址](http
 
 # 6 参考资料
 论文：
+
 [HotStuff: BFT Consensus in the Lens of Blockchain](https://arxiv.org/abs/1803.05069)
+
 [Fast-HotStuff: A Fast and Robust BFT Protocol for Blockchains](https://arxiv.org/pdf/2010.11454)
+
 文章：
+
 [State Machine Replication in the Libra Blockchain](https://diem-developers-components.netlify.app/papers/diem-consensus-state-machine-replication-in-the-diem-blockchain/2019-06-28.pdf)
+
 [What is the difference between PBFT, Tendermint, HotStuff, and HotStuff-2?](https://decentralizedthoughts.github.io/2023-04-01-hotstuff-2/)
+
 [为什么PBFT需要View Changes](https://lessisbetter.site/2020/03/22/why-pbft-needs-viewchange/)
+
 [https://hyperchain.readthedocs.io/zh-cn/stable/consensus mechanism.html#noxbft](https://hyperchain.readthedocs.io/zh-cn/stable/consensus%20mechanism.html#noxbft)
+
 代码：
+
 [https://github.com/relab/hotstuff](https://github.com/relab/hotstuff)
+
