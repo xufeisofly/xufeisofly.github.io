@@ -67,6 +67,7 @@ HotStuff 共识算法中涉及一些基本概念：
 在 HotStuff 共识算法中，一个提案从发起到最终提交需要经历三次投票。因此，原生 HotStuff 是一个三阶段的 BFT 协议（目前有研究将 HotStuff 改为两阶段，但会在某些特性上做出牺牲，这里只描述原生的三阶段 HotStuff）。下图展示了 Basic HotStuff 的各个阶段及其主要职责。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/wkoAej8466851170e8fd7.png)
+
 图 2.1 三阶段提交
 
 图中展示了五个阶段，所谓的三阶段指的是从节点有三次投票。
@@ -134,6 +135,7 @@ HotStuff 共识算法中涉及一些基本概念：
 
 
 ![图 2.2 LockedQC 同步时超时](https://img.learnblockchain.cn/attachments/2024/07/vUGV8tBK668511aba2baa.png)
+
 图 2.2 LockedQC 同步时超时
 
 针对上述场景，我们简单对比 PBFT、Tendermint 和 HotStuff 的超时视图切换方案。
@@ -143,6 +145,7 @@ HotStuff 共识算法中涉及一些基本概念：
 新 Leader 通过超时节点广播的方式收集 `2f+1` 对当前视图状态的投票，广播起到了状态同步的作用，保证了超过 `2f+1` 的节点此时拥有相同的 LockedQC。当收到 `2f+1` 投票后，新 Leader 会生成一个状态证明。之后新 Leader 将该证明广播，证明大部分节点已经拥有相同的 LockedQC，可以顺利推进共识。通讯复杂度为 `O(n^2)`。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/FcVgp09K668511e01656e.png)
+
 图 2.3 PBFT 生成 Locked 状态证明
 
 - **Tendermint 方案：在 Δ 内收集全部诚实节点的 Lock 状态**
@@ -150,25 +153,28 @@ HotStuff 共识算法中涉及一些基本概念：
 无需广播，但需要设置一个 Δ 超时时间，以保证在该时段内收集到全部诚实节点的 Lock 状态，从而获取到真正的 Highest LockedQC。由于无需投票生成证明，可以达到线性通讯复杂度为。但由于依赖固定时间 Δ，系统丧失了即时响应能力（Responsiveness）。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/GdGoPlCi668511efafaa9.png)
+
 图 2.4 Tendermint 等待 Δ 收集最高 Locked 信息
 
-### **2.4.2 HotStuff 超时方案**
+### 2.4.2 HotStuff 超时方案
 
 - **HotStuff 方案：增加 Key 阶段**
 
 HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后生成 KeyQC。当有 LockedQC 生成后，即说明一定有超过 `2f+1` 的节点拥有 KeyQC。那么视图切换时如果收集 `2f+1` 的 KeyQC，其中必有最高的 KeyQC。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/umRwsw2h668511ff0c4b4.png)
+
 图 2.5 HotStuff 收集 KeyQC 进行视图切换
 
 `KeyQC.view` 代表了新提案不能冲突的视图，使用 KeyQC 就能恢复最新的 Locked 状态。因此，HotStuff 在不牺牲系统 Reponsiveness 的同时实现了线性通讯复杂度的视图切换，代价是多了一个 Key 阶段。不难看出，此 Key 阶段即为 HotStuff 中的 Prepare 阶段，如下图。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/hmyotP476685120b823fd.png)
+
 图 2.6 HotStuff 收集 PrepareQC 进行视图切换
 
 总之，HotStuff 通过增加一个阶段的方式，收集最新的 PrepareQC，就能恢复「共识断点」。另外，由于 QC 本身就是大多数节点共识投票的结果，因此在发送 PrepareQC 时无需签名验签，从而也降低 CPU 负担。
 
-### **2.4.3 Timeout Certificate（TC）**
+### 2.4.3 Timeout Certificate（TC）
 
 虽然原生 HotStuff 超时策略可以保证线性的复杂度，但很多工程实现中都使用了生成 TC（Timeout Certificate）的方案，类似 PBFT，理论上通讯复杂度为 `O(n^2)` ，但增强系统在不确定和恶劣网络条件下的可靠性和稳定性。
 
@@ -182,6 +188,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 有了 TC 的概念之后，即使在新提案发生超时导致选举退化的情况下，视图号仍然可以递进，而且严格单调递增。大多数节点虽然无法对新提案的交易（Transactions）和上一个块的 QC 达成共识，但仍然可以对 CurView 达成共识。相比 Basic HotStuff 的方案，这样可以避免分叉，提高共识效率。下图是使用 TC 和不使用 TC 作为视图切换方案的分叉情况对比，使用 TC 可以避免重复视图号的出现。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/uRSMX7v56685121f05f3e.png)
+
 图 2.7 使用 TC 不会造成视图号重复
 
 # 3 Chained HotStuff 实现
@@ -191,6 +198,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 在 Basic HotStuff 中，一个提案的共识需要经过三个阶段，分别产生三个 QC 才能完成。然而，如果每个消息不仅携带当前视图的信息，同时还包含前三个视图的不同阶段的信息，就能实现并行处理，提高效率，如图 3.1 所示。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/6MmFnvSC66851229df731.png)
+
 图 3.1 并行对多个提案进行共识
 
 图中，每个视图 View 的共识内容不仅包含当前 View 的提案 Proposal，还包含 View-1 的 PrepareQC，View-2 的 LockedQC 和 View-3 的 CommitQC。实际上在代码实现中， 只需要将一个 QC 打包到 ViewBlock 中，不需要打包三个，图中对这些 QC 的解释如下：
@@ -209,7 +217,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 
 ## 3.2 数据结构
 
-### **3.2.1 本地变量**
+### 3.2.1 本地变量
 
 在 Chained HotStuff 中，每个节点本地都维护三个重要变量：
 
@@ -217,7 +225,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 - **HighTC**：目前已知最高的 TC，TC 是对 CurView 的群体证明。用于在超时时确定新的视图号。
 - **CurView**：当前视图号，等于 `max(HighQC.view, HighTC.view) + 1`。新的 QC 和 TC 都可以促使 CurView 变更，由于 QC 和 TC 本身就是多数节点签名后形成的共识，因此可以保证 CurView 的一致性。
 
-### **3.2.2 Propose & Vote 消息**
+### 3.2.2 Propose & Vote 消息
 
 在 Chained HotStuff 中，三个阶段变成了三次 Propose & Vote 消息。每一次都会进行如下步骤：
 
@@ -228,16 +236,18 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 以此往复，每一步也都会重新打包交易，而不是只有 Prepare 阶段打包交易，如图 3.2。注意，Leader 也是一个 Replica，Propose 消息自己也需要处理。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/p1sd0EwC6685123a09b43.png)
+
 图 3.2 链式共识流程
 
 - **Propose 消息**：对新提案进行打包，内容包括 HighQC、交易、CurView。
 - **Vote 消息**：对新提案进行投票，新 Leader 收到 `2/3+1` 的投票后生成新 QC，新 QC 代表了对于新提案（交易、父视图 QC、以及 CurView）的认可。
 
-### **3.2.3 ViewBlock 和 QC**
+### 3.2.3 ViewBlock 和 QC
 
 ViewBlock 和 QC 是 HotStuff 中两个最重要的数据结构。多个 ViewBlock 根据 Hash 指针和 QC 指针组成 ViewBlockChain，示意图如下：
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/N0cfjbje668512457c9b3.png)
+
 图 3.3 ViewBlockChain 结构，图中的 QC2 指代针对 View2 生成的 QC
 
 其中：
@@ -270,11 +280,13 @@ struct ViewBlock {
 根据是否拥有 LockedQC 和 CommitQC，将每个 ViewBlock 划分为 New Proposal、Locked、Committed 三种状态，就形成了一条不断提交的 ViewBlockChain 区块链。ViewBlockChain 本质上是一个包含了未提交状态的区块链，每一个块是对 HotStuff 中具体阶段的一次共识，而不仅仅是对该提案是否应该提交的共识。我们平时说的区块链多是指其中已经提交的块，这部分不会分叉，而尚未提交的块是会分叉的，如图 3.4。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/AZ9fPau3668512577defa.png)
+
 图 3.4 视图链分叉
 
 系统对新提案不断进行共识，当某个提案连续获得两个 QC，该节点状态即为 Locked；连续获得三个 QC，可提交为 Committed 状态，如下图，这与 Basic HotStuff 的三阶段提交是一致的。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/FQqGeYjR66852048559fc.png)
+
 图 3.5 视图块状态变更
 
 QC 是对一个 ViewBlock 的群体共识，包括 ViewBlock 的哈希以及重建后的阈值签名（如 BLS）。除了包含对应 ViewBlock 的 Hash 指针以外，QC 中还包含了应该提交的 ViewBlock 的 Hash 指针，用于同步已提交区块时提供 Commit Proof，这在后文「同步模块」中会进行介绍。QC 的基本结构如下：
@@ -296,7 +308,7 @@ struct QC {
 
 ## 3.3 提案打包与验证
 
-### **3.3.1 打包提案**
+### 3.3.1 打包提案
 
 新提案就是一个 ViewBlock，包括以下内容：
 
@@ -307,12 +319,13 @@ struct QC {
 
 对于提案中的 QC 来说，诚实 Leader 会打包 HighQC，即从最新 ViewBlock 之后继续出块，但由于 Leader 有恶意可能，打包什么 QC，从哪个 ViewBlock 之后分叉，只能由 Replicas 做合法性验证。
 
-其实在 HotStuff 协议中，Leader 不打包 HighQC 也可以满足验证条件。但为了避免恶意节点故意打包旧的 QC 而造成其他视图回滚，同时提高共识效率，我们要求诚实节点 Leader 必须打包 HighQC。如图 3.6，如果 Leader 产生了 QC3，却故意打包了 QC2，会造成 View3 被恶意回滚。
+其实在 HotStuff 协议中，Leader 不打包 HighQC 也可以满足验证条件。但为了避免恶意节点故意打包旧的 QC 而造成其他视图回滚，避免分叉攻击，我们部分参考了 Fast-HotStuff 协议，要求诚实节点 Leader 必须打包 HighQC，并由 Replicas 进行验证。如图 3.6，如果 Leader 产生了 QC3，却故意打包了 QC2，会造成 View3 被恶意回滚，且频繁分叉会降低系统的吞吐量。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/R6ZSeCpk668512afd3ae2.png)
+
 图 3.6 Leader 打包旧 QC 造成恶意回滚
 
-### **3.3.2 验证提案**
+### 3.3.2 验证提案
 
 HotStuff 论文中，Replica 对于新提案的验证是为了保证 HotStuff 的安全性（Safety）和活性（Liveness）。HotStuff 将 Safety 和 Liveness 解耦，Safety 由 HotStuff 协议本身实现，Liveness 由业务实现。
 
@@ -369,6 +382,7 @@ HotStuff 论文中，Replica 对于新提案的验证是为了保证 HotStuff �
     - 提交后，Replica 需要将之前的视图分支「剪掉」，并将其中的交易归还给交易池，等待下一次打包。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/NlBkjCKy668512c080c1b.png)
+
 图 3.7 视图块提交触发剪枝
 
 注意：
@@ -395,27 +409,30 @@ Pacemaker 模块是 HotStuff 协议中用于保证活性的重要模块，负责
 
 ## 3.7 超时机制
 
-### **3.7.1 动态超时时间**
+### 3.7.1 动态超时时间
 
 视图超时时间的预设通常根据旧视图处理时间来进行动态调整，例如，可以使用过去平均处理时间的 95% 置信区间上限作为阈值。一旦视图超时，系统会根据当前超时时间乘以一个系数来调整后续视图的超时时间选择策略。
 
-### **3.7.2 TC 生成方案**
+### 3.7.2 TC 生成方案
 
 Replica 对当前视图号 CurView 进行签名并发送给 Leader，Leader 收到 `2/3+1` 超时消息后生成 TC，作为系统对于新视图的共识，完成视图切换。
 
 CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名消息之前，需要保证`2/3+1` 节点的 HighQC 是一致的。举例来说，发生超时时，如果一半的节点收到了最新的提案并更新了 HighQC，而另一半节点没有收到，由于 HighQC 不一致，系统无法对同一个 CurView 签名并发送消息导致共识卡死，如图 3.8。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/aEg196B6668512d017534.png)
+
 图 3.8 超时不广播且无同步情况下视图切换卡死
 
 此外，还存在一种情况，即少数节点持有最新的 HighQC，而大部分节点的 HighQC 还停留在较旧的状态。如图 3.9，当 View5 发生超时时，只有少量节点收到了 QC4 并更新了 HighQC，而大多数节点仍然停留在 QC3。在这种情况下，如果超时节点直接向新 Leader 发送 `TimeoutMsg`（通信复杂度为 `O(n)`），虽然不会影响共识活性，但会导致 QC4 被浪费，降低吞吐量。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/IROMp99t668512e8c6dd8.png)
+
 图 3.9 不能收集到最新 HighQC 的情况
 
 所以，应当在保证 `2/3+1` 节点 HighQC 一致的前提下，尽量保证这个 HighQC 是最新的。为了实现这点，HotStuff 通过广播 `TimeoutMsg` 的方式生成 TC，`TimeoutMsg` 包括 HighQC 以及签名后的 CurView，广播起到了同步其中 HighQC 作用，以确保 Leader 收到真正的 HighQC，即使只有少数节点持有该信息。具体流程如图 3.9 所示：
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/89LdJmUU668512f59fc71.png)
+
 图 3.10 Timeout 消息广播过程
 
 - **Step1：** 当一个 HighQC = QC3 的节点触发超时时，它会广播 TimeoutMsg，其中包含本节点当前的 HighQC（QC3）。新 Leader 收到此消息后，发现 QC3 ≤ 自身的 HighQC，将该节点加入统计。同时，其他节点也会更新本地的 HighQC（尝试进行视图切换），并将新的 HighQC 发送给 Leader。Leader 接收到 QC4，更新本地 HighQC，并且废弃之前的 QC3 超时统计。
@@ -426,7 +443,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 
 由于对 `TimeoutMsg` 的广播，此视图切换方案需要 `O(n^2)` 的通讯复杂度，但提高了系统鲁棒性，是多数工程实践的选择，如 LibraBFT。另外，我们可以使用渐进式的 HighQC 同步策略降低复杂度，具体实现细节将在后面的「同步模块」中详细介绍。
 
-### **3.7.3 HighQC 收集方案**
+### 3.7.3 HighQC 收集方案
 
 我们还可以使用原生 HotStuff 方案，即新 Leader 通过收集 `2/3+1`个节点中 HighQC 的值来恢复「共识断点」，将通讯复杂度降为线性。
 
@@ -440,6 +457,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 这里有个细节，一般验证新提案的时候我们要求提案的视图号不能重复（否则 Leader 可以恶意回滚某个视图），即节点不会对已经投过票的视图投票，但在超时情况下，这将会导致之前收到最新 QC 的少数节点后续无法参与共识。仍然以上文中图 3.9 的例子加以说明，即 View5 仅发送给了少数节点而触发超时，如下图。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/cLppTwpL6685130350c0d.png)
+
 图 3.11 View 号重复性验证会导致少数节点无法参与后续共识
 
 这部分少数节点由于 `View5’ ≤ View5` 无法接受 View5’，从而无法参与后续共识。因此，在超时造成视图切换之后的第一个视图中，我们需要放开对于视图号必须最新的限制，可以接受重复视图号的提案。比如上面例子中少数节点应该允许接受 View5’ 从而强行回滚 View4（反正大部分节点也没有 QC4，这个回滚是大家投票决定的）。如果选择收集 HighQC 作为超时视图切换的方案，这点是应当注意的，使用 TC 方案则不存在此问题。
@@ -451,13 +469,13 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 
 为了提高共识效率，应尽量确保新 Leader 收到真正的 HighQC。因此，开发一个同步模块来保证最新 HighQC 的同步是非常必要的。
 
-## 3.9 同步模块
+## 3.8 同步模块
 
 节点状态不一致导致共识失败时，系统需要同步策略来保证超过 `2/3+1` 节点的状态一致性，以继续进行共识。在上文的图 3.8 中，在 View5 提案广播异常的情况下，一半节点收到了新的 QC，而另一半没有收到，这样在没有同步机制的情况下，新 Leader 永远无法获得足够的投票来生成 TC。
 
 通常情况下，HotStuff 通过广播方式在超时后进行状态一致性的修复（见「超时机制」部分），不需要额外的同步模块。但由于 `O(n^2)` 的通讯复杂度在节点过多时占用过多带宽，我们开发了一个额外的同步模块，以渐进式地同步节点之间的状态。
 
-### **3.8.1 同步内容**
+### 3.8.1 同步内容
 
 - **未提交 ViewBlock**
 
@@ -466,6 +484,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 当节点发现自己缺失 ViewBlock 时，会尝试向邻居节点同步。邻居节点收到请求后，对比请求者与自己 ViewBlockChain 的差异，将请求者缺失的 ViewBlock 及其对应的 QC 发给该节点，只要 QC 验证通过，该 ViewBlock 就会被加入请求者本地的 ViewBlockChain 中，如下图所示。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/7seScbnw6685130f7b750.png)
+
 图 3.12 同步未提交 ViewBlocks
 
 注意，只有已经生成 QC 的 ViewBlock 才能被同步，以防恶意节点伪造 ViewBlock。但这也带来一个问题：**最新的提案由于还没有投票生成 QC，永远不能被同步过来，导致 Replica 无法参与后续的共识。**这是因为验证新提案要求其父块必须存在，由于父块无法同步过来，Replica 永远不能对新提案投票**。**
@@ -475,6 +494,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 总之，一旦节点「掉队」，就无法继续参与共识，直到共识节点数量不足而触发视图超时，才能重新跟上进度。因此，系统参与共识的节点数量随着时间变化呈现如下图所示趋势。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/QxstOGj46685131b61266.png)
+
 图 3.13 「掉队」节点无法参与共识，直到节点数量不足而触发超时
 
 为了解决这个问题，我们没有直接拒绝因节点状态滞后而验证失败的提案，而是将其放入等待队列，并记录断点的上下文。这主要针对以下两种提案：
@@ -494,16 +514,17 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 
 保证新提案打包的 HighQC 一致，同时和 HighTC 一起保证各个节点的 CurView 一致。
 
-### **3.8.2 同步方式**
+### 3.8.2 同步方式
 
 为避免 `O(n^2)` 的通讯复杂度，同步使用 Gossip 协议，每个周期将本节点信息随机同步给 N 个节点。下图是 Gossip `N=1` 的同步示意，初始仅有一个节点拥有最新状态，每次同步各节点随机选择 1 个节点发送本地数据，经过三次同步后覆盖了全部 5 个节点。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/Urb65vsM6685132f84604.png)
+
 图 3.14 N = 1 时，Gossip 需要多次同步才能保证状态一致
 
 这种同步方式可能需要多次同步才能保证 `2/3+1` 的节点实现数据一致，但降低了通讯复杂度，可以避免过量带宽的占用。
 
-### **3.8.3 同步时机**
+### 3.8.3 同步时机
 
 同步触发时机如下：
 
@@ -565,11 +586,13 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 当 Leader 发起一个新视图的共识时，HighQC 和 HighTC 会跟随 ProposeMsg 一同广播给 Replicas，然而如果打包提案失败，刚刚生成的新 QC 也无法同步给 Replicas，只能等待同步，这会大幅拉低系统吞吐量。因此在新提案打包失败时单独对 QC 进行广播，这比等待同步要快的多，如图所示。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/xc6HpCqA6685139d90f18.png)
+
 图 4.1 正常情况，提案打包失败，仅广播 QC
 
 超时生成的 TC 也是如此，如果因为提案打包失败而导致 TC 无法广播，那么 Replica 就会认为视图切换失败不断申请切换该视图，系统便会丧失活性，因此应该在 Propose 失败时单独广播 TC，确保 Replica 能够切换到新的视图，如图所示。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/cfzPXtR6668513a764079.png)
+
 图 4.2 超时情况，提案打包失败，仅广播 TC
 
 ## 4.2 高 TPS 下的交易池一致性优化
@@ -579,6 +602,7 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 因此，Shardora 的交易并不是以 Gossip 进行扩散的，而是由指定的节点接收，并跟随 Propose & Vote 消息在节点之间进行传递的，原理如下图。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/MaL3V7Li668513b17ffad.png)
+
 图 4.3 交易通过 Propose & Vote 消息传播
 
 图中，4 个节点(1, 2, 3, 4)初始状态各自拥有不同的交易(A, B, C, D)，这些交易会随着 Propose 和 Vote 共识消息进行传播。比如，当一个 Replica 收到一条 Leader 发来的新交易，就会将该交易加入交易池，而在 Replica 发送投票消息给 Leader 时，也会附带本地的一部分交易作为同步。
@@ -594,6 +618,7 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 在长时间无交易场景下，较高的超时时间会造成突发交易的较大延迟，系统需要等待一个超时触发的视图切换后才能出块。为此，Shardora 为节点增加了交易监听功能，如图 4.4 所示。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/WJtyesMt668513be83cd7.png)
+
 图 4.4 新交易到来重置超时时间
 
 图中，交易池中长时间没有交易，系统不停地触发超时进行视图切换，此时：
@@ -606,6 +631,7 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 超时时间和视图号关系如图。
 
 ![image.png](https://img.learnblockchain.cn/attachments/2024/07/crRczgLt668513c81c91e.png)
+
 图 4.5 无交易和新交易到来时超时时间变化
 
 ## 4.4 低 TPS 下的交易提交优化

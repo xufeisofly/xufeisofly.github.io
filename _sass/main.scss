@@ -10,7 +10,22 @@ body {
     transition: all 0.25s ease;
 }
 
+.content-margin {
+  margin-left: 0;
+  margin-right: 0;
+}
+    
+@media (min-width: 1024px) {
+  .content-margin {
+    margin-left: 20%;
+    margin-right: 20%;
+  }
+}
 
+.content img {
+  max-width: 100%;
+  height: auto;
+}
 
 /* width */
 ::-webkit-scrollbar {
