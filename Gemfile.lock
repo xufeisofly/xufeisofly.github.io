@@ -271,6 +271,7 @@ DEPENDENCIES
   jekyll (~> 3.9.5)
   jekyll-feed (~> 0.12)
   jekyll-remote-theme
+  jekyll-theme-cayman
   minima (~> 2.5)
   tzinfo (>= 1, < 3)
   tzinfo-data
