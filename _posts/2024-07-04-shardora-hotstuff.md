@@ -1,7 +1,7 @@
 ---
 title: Shardora HotStuff 工程设计与实现
 layout: post
-post-image: "https://img.learnblockchain.cn/attachments/2024/07/wkoAej8466851170e8fd7.png"
+post-image: "/assets/images/shardora-hotstuff-img/Untitled%201.png"
 tags:
 - hotstuff
 - consensus
