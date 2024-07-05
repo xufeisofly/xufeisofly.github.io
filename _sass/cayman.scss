@@ -34,6 +34,11 @@ body {
   color: $body-text-color;
 }
 
+li {
+  list-style: circle;
+  list-style-position: outside;
+}
+
 #skip-to-content {
   height: 1px;
   width: 1px;
