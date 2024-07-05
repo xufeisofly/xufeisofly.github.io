@@ -1,8 +1,11 @@
 ---
+title: Shardora HotStuff 工程设计与实现
 layout: post
-title: "Shardora HotStuff 工程设计与实现"
-date:   2024-07-04 11:44:32 +0800
-categories: jekyll update 
+post-image: "https://img.learnblockchain.cn/attachments/2024/07/wkoAej8466851170e8fd7.png"
+tags:
+- hotstuff
+- consensus
+- blockchain
 ---
 
 *本文内容源于 [Shardora](https://github.com/tenondvpn/shardora)对 HotStuff 的工程实现。Shardora 是一条基于多分片扩容、多交易池并发共识的高性能区块链，使用 PoCE + HotStuff 来保证共识的性能与安全性。*
