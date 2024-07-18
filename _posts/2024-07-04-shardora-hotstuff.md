@@ -650,9 +650,39 @@ bool IsEmptyBlockAllowed(const ViewBlock& v_block) {
 }
 ```
 
-# 5 参考资料
+# 5 性能测试
 
-Shardora 支持多分片多交易池，每个交易池单独进行共识出块，由于仅测量 HotStuff 共识逻辑，这里仅对单分片单交易池进行压测，实测 300 节点约 1w+ TPS。
+Shardora 支持多分片多交易池，每个交易池单独进行共识出块，由于仅测量 HotStuff 共识逻辑，这里仅对单分片单交易池进行压测，目前仅对内网环境进行了测试。
+实测 300 节点约 1w+ TPS，600 节点 7k+ TPS。以下是 600 节点， 100 台 8 核 16 G 机器上单交易池的 TPS 日志，每台及其部署 6 个节点。
+
+```
+2024-07-18 16:28:01,063 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7297.78
+2024-07-18 16:28:03,178 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7746.54
+2024-07-18 16:28:05,338 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7586.22
+2024-07-18 16:28:07,382 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 8015.64
+2024-07-18 16:28:09,480 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7809.98
+2024-07-18 16:28:11,587 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7717.00
+2024-07-18 16:28:13,802 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 8320.13
+2024-07-18 16:28:15,878 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 2990.85
+2024-07-18 16:28:18,080 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7438.96
+2024-07-18 16:28:20,209 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7695.46
+2024-07-18 16:28:22,328 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7733.35
+2024-07-18 16:28:24,464 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7670.95
+2024-07-18 16:28:26,720 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7261.65
+2024-07-18 16:28:28,742 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 8101.42
+2024-07-18 16:28:30,882 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7658.14
+2024-07-18 16:28:33,138 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7262.23
+2024-07-18 16:28:35,656 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 8133.41
+2024-07-18 16:28:37,685 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7574.35
+2024-07-18 16:28:39,927 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 8326.39
+2024-07-18 16:28:41,968 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7751.00
+2024-07-18 16:28:44,014 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 6841.53
+2024-07-18 16:28:46,063 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7282.77
+```
+
+# 6 参考资料
+
+
 
 Shardora 目前仍处于开发阶段，你可以前往[Github 项目地址](https://github.com/tenondvpn/shardora)查看并测试 [HotStuff 代码](https://github.com/tenondvpn/shardora/tree/main/src/consensus/hotstuff)。
 
