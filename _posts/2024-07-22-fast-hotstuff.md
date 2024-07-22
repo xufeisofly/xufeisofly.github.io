@@ -46,10 +46,12 @@ FHS 论文中证明了，只要满足「新提案永远打包 HighQC」这个事
 > Indeed, the presence of the proof for the *highQC* guarantees that a replica can safely commit a block after two-chain without waiting for the maximum network delay as done in two-chain HotStuff [7], Tendermint [5], and Casper. — 《Fast HotStuff》
 > 
 
+
 然而，由于 Unhappy path 视图切换时需要收集 2/3+1 节点对各自 HighQC 的签名，FHS 需要使用能够对不同消息进行签名的聚合签名来替换原生 HS 的阈值签名，这使得 Unhappy path 视图切换的通讯复杂度升级为 O(n^2)。
 
 > Unfortunately, we are not able to avoid the transfer of quadratic view change messages over the wire during view change due to primary failure (also called unhappy path). — 《Fast HotStuff》
 > 
+
 
 好在 FHS 优化了验证逻辑，只需要验证两个 QC，在节点数量可控的情况下，实测计算耗时没有太大影响。下文对聚合签名进行介绍。
 
@@ -107,6 +109,7 @@ FHS 在 Unhappy path 时对 HighQC 进行聚合签名生成 AggQC，打包了 Ag
 - **验证 AggQC 是否合法**。如果合法，说明该 AggQC 确实饱含了 `2/3+1` 个节点对于自己 HighQC 的签名。
 - **验证 AggQC 中最高 HighQC 是否合法并且是否是最新的**。如果仅验证 AggQC 合法性，恶意 Leader 完全可以使用一个旧的 AggQC 作为证明，因此 Replica 还要对 AggQC 其中的 HighQC 进行验证，确保确实比本地的 HighQC 高。
 
+
 一旦 Replica 发现 AggQC 不满足上述两个条件，就会做出惩罚，这就增加了恶意 Leader 进行分叉攻击的成本。
 
 ### 对于工程实现的一个疑问
@@ -123,8 +126,9 @@ FHS 在 Unhappy path 时对 HighQC 进行聚合签名生成 AggQC，打包了 Ag
 
 而使用了聚合签名便可解决该问题，如 LibraBFT。聚合签名可以得知具体参与投票的节点身份，因此可以：
 
-- 给参与投票的节点一定激励
-- 提升参与投票的节点下次称为 Leader 的概率
+- **给参与投票的节点一定激励**
+- **提升参与投票的节点下次称为 Leader 的概率**
+
 
 不过需要说明的是，聚合签名由于是 Leader 生成的，该 Leader 完全可以对该投票节点的列表进行恶意操作，比如去掉自己不喜欢的节点，而放入串谋节点的签名。因此我们虽然可以保证聚合签名的正确性，但却无法完全保证聚合签名的真实性，这个问题需要额外进行解决。下图中示意了恶意 Leader 在收集投票签名时，故意不使用 Sig3 而使用 Sig4 的过程。
 
