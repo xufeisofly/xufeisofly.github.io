@@ -10,7 +10,7 @@ tags:
 
 # 原生 HotStuff 的局限
 
-相比其他 BFT 类共识算法，HotStuff（下文简称 HS） 通过增加一个投票阶段的方式实现了正常和异常情况下 O(n) 的通讯复杂度，并且没有牺牲响应性（Responsiveness）。具体请参考上篇文章。
+相比其他 BFT 类共识算法，HotStuff（下文简称 HS） 通过增加一个投票阶段的方式实现了正常和异常情况下 O(n) 的通讯复杂度，并且没有牺牲响应性（Responsiveness）。具体请参考上篇文章[HotStuff 工程设计与实现](https://xufeisofly.github.io/blog/shardora-hotstuff)。
 
 然而，HS 有以下两个局限：
 
