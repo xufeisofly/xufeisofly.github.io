@@ -680,9 +680,17 @@ Shardora 支持多分片多交易池，每个交易池单独进行共识出块�
 2024-07-18 16:28:46,063 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7282.77
 ```
 
-# 6 参考资料
+
+# 6 后续改进
+
+Shardora HotStuff 采用了原生的 Chained HotStuff，这将带来一些问题，如使用无法接入 PoS，分叉攻击导致吞吐量降低等。因此后续改进方向如下：
+
+- 使用 BLS 聚合签名替换阈值签名，去除 DKG，简化代码。
+- 使用 Fast HotStuff，应对分叉攻击，并缩短交易确认时延。
+- 接入 PoS，使用 Stake 作为投票权重，进一步提升安全性。
 
 
+# 7 参考资料
 
 Shardora 目前仍处于开发阶段，你可以前往[Github 项目地址](https://github.com/tenondvpn/shardora)查看并测试 [HotStuff 代码](https://github.com/tenondvpn/shardora/tree/main/src/consensus/hotstuff)。
 
