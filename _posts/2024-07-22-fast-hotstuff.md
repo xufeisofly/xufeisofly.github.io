@@ -9,6 +9,7 @@ tags:
 ---
 
 # 原生 HotStuff 的局限
+---
 
 相比其他 BFT 类共识算法，HotStuff（下文简称 HS） 通过增加一个投票阶段的方式实现了正常和异常情况下 O(n) 的通讯复杂度，并且没有牺牲响应性（Responsiveness）。具体请参考上篇文章[HotStuff 工程设计与实现](https://xufeisofly.github.io/blog/shardora-hotstuff)。
 
@@ -33,6 +34,7 @@ Fast HotStuff 论文中给出了在持续的分叉攻击下，随着拜占庭节
 ![Untitled](/assets/images/fast-hotstuff-img/Untitled%202.png)
 
 # Fast HotStuff 逻辑
+---
 
 Fast HotStuff(下文简称 FHS) 的核心逻辑，就是**确保新提案永远从最长的链后继续出块**，**即 Leader 确保提案中的 QC 是最新的 QC（即 HighQC），并为之提供证明**。为此 FHS 分别讨论了正常路径（Happy path） 和超时路径（Unhappy path）两种情况，如下图：
 
@@ -56,6 +58,7 @@ FHS 论文中证明了，只要满足「新提案永远打包 HighQC」这个事
 好在 FHS 优化了验证逻辑，只需要验证两个 QC，在节点数量可控的情况下，实测计算耗时没有太大影响。下文对聚合签名进行介绍。
 
 # FHS 使用聚合签名
+---
 
 论文中，FHS 和原生 HS 有个很大的区别，就是使用聚合签名而非阈值签名，其实不仅仅是 FHS，如 LibraBFT 等工程实现中，也都将阈值签名换成了聚合签名，这是因为聚合签名相比阈值签名有很多工程优势。
 
@@ -119,6 +122,7 @@ FHS 在 Unhappy path 时对 HighQC 进行聚合签名生成 AggQC，打包了 Ag
 即，在异步情况下，新 Leader 是如何得知这 2/3+1 对 HighQC 的签名是针对统一视图的？🤔
 
 # 不同签名对 HotStuff 激励机制的影响
+---
 
 阈值签名和聚合签名还有一个区别，即阈值签名无法得知具体参与签名的节点是哪些，而聚合签名可以。因此阈值签名方案便存在一个问题：**无法甄别恶意 Replica 的故意不投票行为**。
 
@@ -135,6 +139,7 @@ FHS 在 Unhappy path 时对 HighQC 进行聚合签名生成 AggQC，打包了 Ag
 ![Untitled](/assets/images/fast-hotstuff-img/Untitled%205.png)
 
 # 总结
+---
 
 FHS 解决了 HS 工程实现中的重大问题，即分叉攻击导致吞吐量降低，并且减少了一个阶段使得交易确认延迟降低。
 
@@ -143,6 +148,7 @@ FHS 解决了 HS 工程实现中的重大问题，即分叉攻击导致吞吐量
 但对于超大量节点的共识场景（比如超过 5000 节点），由于聚合签名验证过程提升了复杂度，FHS 的可行性需要额外验证。同时，超时的工程实现中可能仍然需要生成 TC 已保证视图的一致性。
 
 # 参考资料
+---
 
 - [HotStuff: BFT Consensus in the Lens of Blockchain](https://arxiv.org/abs/1803.05069)
 - [Fast-HotStuff: A Fast and Robust BFT Protocol for Blockchains](https://arxiv.org/pdf/2010.11454)

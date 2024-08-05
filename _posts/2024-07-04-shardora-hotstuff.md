@@ -11,6 +11,7 @@ tags:
 > *本文内容源于 [Shardora 区块链](https://github.com/tenondvpn/shardora)对 HotStuff 的工程实现。Shardora 是一条基于多分片扩容、多交易池并发共识的高性能区块链，使用改进的 PoS + HotStuff 来保证共识的性能与安全性。*
 
 # 1 共识算法概述
+---
 
 共识算法用于实现各个副本之间的状态机复制（SMR）协议，是去中心化系统（如区块链）的核心部分，它保证了节点对当前系统状态能够达成统一的认知。
 
@@ -33,6 +34,7 @@ BFT 共识有一个前提，即拜占庭假设：拜占庭节点（如恶意或�
 文章从原生 HotStuff 出发，重点讨论 Chained HotStuff 的方案设计和工程实现。阅读本文无需对协议有深入研究。文章第一部分对 Basic HotStuff 协议进行基本介绍，以便于理解 Chained HotStuff，第二部分介绍 Chained HotStuff 设计方案，第三部分探讨在工程实现过程中遇到的部分问题以及相关优化措施。希望能对想要了解和实现 HotStuff 的读者有所帮助。
 
 # 2 Basic HotStuff 介绍
+---
 
 HotStuff 是一种拜占庭容错共识协议，其最大的特点是将 BFT 协议过高的通讯复杂度降低到了 `O(n)` 级别，即使在异常情况下，仍能以`O(n)`的线性（Linearity）通讯复杂度进行视图切换，同时不牺牲系统响应度（Responsiveness）。
 
@@ -184,6 +186,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 图 2.7 使用 TC 不会造成视图号重复
 
 # 3 Chained HotStuff 实现
+---
 
 ## 3.1 基本原理
 
@@ -570,6 +573,7 @@ int CalculateConsensusOkNumber(const ViewBlock& v_block) {
 ```
 
 # 4 工程优化
+---
 
 Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能区块链，我们使用改进的 PoS + HotStuff 共识机制保证共识的安全性和性能。本部分介绍在开发过程中针对 Chaine HotStuff 进行的部分工程优化。
 
@@ -651,6 +655,7 @@ bool IsEmptyBlockAllowed(const ViewBlock& v_block) {
 ```
 
 # 5 性能测试
+---
 
 Shardora 支持多分片多交易池，每个交易池单独进行共识出块，由于仅测量 HotStuff 共识逻辑，这里仅对单分片单交易池进行压测，目前仅对内网环境进行了测试。
 实测 300 节点约 1w+ TPS，600 节点 7k+ TPS。以下是 600 节点， 100 台 8 核 16 G 机器上单交易池的 TPS 日志，每台及其部署 6 个节点。
@@ -682,6 +687,7 @@ Shardora 支持多分片多交易池，每个交易池单独进行共识出块�
 
 
 # 6 后续改进
+---
 
 Shardora HotStuff 采用了原生的 Chained HotStuff，这将带来一些问题，如使用无法接入 PoS，分叉攻击导致吞吐量降低等。因此后续改进方向如下：
 
@@ -691,6 +697,7 @@ Shardora HotStuff 采用了原生的 Chained HotStuff，这将带来一些问题
 
 
 # 7 参考资料
+---
 
 Shardora 目前仍处于开发阶段，你可以前往[Github 项目地址](https://github.com/tenondvpn/shardora)查看并测试 [HotStuff 代码](https://github.com/tenondvpn/shardora/tree/main/src/consensus/hotstuff)。
 
