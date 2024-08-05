@@ -9,7 +9,11 @@ tags:
 - blockchain
 ---
 
-在生产环境中，Tendermint 是一个比 HotStuff 更加成熟的方案，在 Shardora 实现了 HotStuff 以及 Fast HotStuff 之后，我们学习并参考了 Tendermint，特别是参考其对接 PoS 的部分，以进一步完善 Shardora 共识的效率和安全性。此外，Tendermint 中涉及很多 BFT 的基本概念，是 BFT 类共识发展历史的一个重要节点，了解 Tendermint 能让我们更加熟悉 BFT 类共识的底层原理，更能了解 BFT 类共识普遍面对的问题，以及不同共识算法对应的解决方案。
+在生产环境中，Tendermint 是一个比 HotStuff 出现更早、更加成熟的方案，最有名的是 Cosmos 中的应用。我们在 Shardora 实现了 HotStuff 作为共识层之后，学习并参考了 Tendermint，特别是参考其对接 PoS 的部分，以进一步完善 Shardora 共识的效率和安全性。此外，Tendermint 中涉及很多 BFT 的基本概念，是 BFT 类共识发展历史的一个重要节点，了解 Tendermint 能让我们更加熟悉 BFT 类共识的底层原理，更能了解 BFT 类共识普遍面对的问题，以及不同共识算法对应的解决方案。
+
+[Tendermint 项目地址](https://github.com/tendermint/tendermint/)
+
+[Shardora HotStuff 代码地址](https://github.com/tenondvpn/shardora/tree/main/src/consensus/hotstuff)
 
 现在的 Tendermint 不仅仅指代共识算法，而是个十分成熟的开源项目，不仅包括共识部分，还包括网络层和 ABCI（Application BlockChain Interface）用于不同的语言快速接入。项目分层如下：
 
@@ -17,55 +21,55 @@ tags:
 - Consensus Layer (Tendermint Core)
 - Network Layer (Tendermint Core)
 
-本文主要是对 Tendermint 共识层的学习和思考，不涉及其他部分。而学习 Tendermint 共识的前提和核心，是了解部分同步系统的概念。
+本文主要是对 Tendermint 共识层的学习和思考，不涉及其他部分。而学习 Tendermint 共识的前提，是了解**部分同步模型**这个概念。
 
-# 同步、异步和部分同步系统
+# 同步、异步和部分同步模型
 
-根据网络中消息发送到接受的时间，我们将网络系统分为同步、异步和部分同步系统三种。
+根据网络中消息从发送到被接受的时间，我们将网络分为**同步、异步和部分同步**三种模型。
 
-- 同步系统：消息从一个节点发送到另一个节点所需要的时间存在一个**固定的、已知的**上限。比如比特币，比特币 10 分钟出一个块，这 10 分钟是系统的配置参数，如果我们将 10 分钟缩短为 1 分钟，比特币 PoW 共识将无法正常工作。
-- 异步系统：不存在那个固定的已知的时间上限，时间可以无限长。异步系统的标志一般是没有一个人为设定的时间作为系统配置参数，共识算法完全依赖于网络情况，一个诚实节点发出的消息可能经过 1 万年才能被收到，这些情况都是异步系统需要应对的。
-- 部分同步系统：假设存在一个全剧稳定时间 GST，在 GST 时刻之后，我们认为整个系统达到如下状态：如果发送消息，可以认为在一个时间上限 ∆ 以内消息必定被接受。因此在 GST 之前，系统被认为是异步的，共识速度与系统参数无关，只和真实的网络传输速度有关。而在 GST 之后，系统被认为是同步的。因此我们可以认为部分同步系统存在一个消息传输的时间上限 ∆，但这个时间上限不是固定的，也无法准确得知，∆ 可以很短也可以很长。因此当设计部分同步系统时需要考虑 ∆ 的不确定性造成共识失败时如何恢复系统活性的问题。
+- **同步模型**：消息从一个节点发送到另一个节点所需要的时间存在一个**固定的、可知的**上限。比如比特币，比特币 10 分钟出一个块，这 10 分钟是系统的配置参数，如果我们将 10 分钟缩短为 1 分钟，比特币 PoW 共识将无法正常工作。
+- **异步模型**：不存在那个固定的时间上限，时间可以无限长。异步系统中无法准确的给出一个时间参数，使得节点的消息会在该时间内被接收，消息时延完全依赖于网络情况，一个诚实节点发出的消息可能经过 1 万年才能被收到，虽然很夸张，但异步系统需要处理这些情况。
+- **部分同步模型**：假设存在一个全剧稳定时间，称为 GST，在 GST 时刻之后，我们认为整个系统达到如下状态：**所有诚实节点发送的消息会在一个时间 ∆ 以内必定被接受**。在 GST 之前，系统被认为是异步的，共识速度与系统参数无关，只和真实的网络传输速度有关。而在 GST 之后，系统被认为是同步的，有一个固定时间参数保证消息的到达。总的来说，可以认为部分同步系统存在一个总的消息传输时间上限，这个时间上限不是固定的，也无法准确得知，可以很短也可以很长。在设计部分同步系统时要考虑这个不确定的时间上限造成共识失败时如何恢复系统活性的问题。
 
-Tendermint 和 HotStuff 都是部分同步系统，它们假设网络在某些时间段内可能是异步的，但在某个时刻之后变得同步。学术界已经证明：异步模型下，如果存在节点宕机的可能，系统永远无法达成共识。而部分同步系统就是要设计一个协议能够在忽略这个固定时间上限的前提下仍然能促使系统达成共识。
+目前已经证明，在异步模型下，如果存在节点宕机的可能，系统将永远无法达成共识，而同步模型由于需要一个漫长固定时间的等待，吞吐量往往较低。其实相比同步和异步，我们的网络更接近部分同步模型，Tendermint 和 HotStuff 都是基于部分同步模型设计的共识算法，即它们假设网络在某些时间段内可能是异步的，但在某个时刻之后变得同步。
 
 # Tendermint 共识算法
 
-与 HotStuff 和其他 BFT 类共识一样，Tendermint 的前提是拜占庭假设，即满足恶意节点的数量 f 小于 1/3 总节点数。不过 Tendermint 能够对接 PoS，使得每个节点的投票权重并不相同，Stake 大小决定了投票权重（Voting Power），因此我们所说的 2/3+1 指代的不再是节点数量，而是 Voting Power 的累积值。
+与 HotStuff 和其他 BFT 类共识一样，Tendermint 的前提是拜占庭假设，即满足恶意节点的数量 f 小于 1/3 总节点数。不过 Tendermint 接入了 PoS，使得每个节点的投票权重依赖于 Stake，而不是每个节点一票，Stake 大小决定了投票权重（Voting Power），所以我们所说的 2/3+1 指代的不再是节点数量，而是 Voting Power 的累积值。这点在使用阈值签名的原生 HotStuff 中无法实现，但在使用了聚合签名的 Fast HotStuff 中就可以做到。
 
-此外，Voting Power 还会对 Leader 即打包提案的 Proposer 的选举产生影响，Tendermint 使用 weighted round-robin 的方式，根据 Voting Power 作为权重选举 Leader，权重越大，被选为 Leader 的概率也就越大。同时通过动态调整 Voting Power 尽量避免连续视图选出重复的 Leader。具体细节本文不涉及。
+此外，Voting Power 还会对 Leader 即打包提案的 Proposer 的选举产生影响，Tendermint 使用 weighted round-robin 的方式，根据 Voting Power 作为权重选举 Leader，权重越大，被选为 Leader 的概率也就越大。同时通过动态调整 Voting Power 尽量避免连续视图选出重复的 Leader。具体细节本文不再涉及。
 
-在拜占庭假设和部分同步系统假设的前提下，Tendermint 的核心逻辑就展现出来了。包括三个阶段，两次投票。下面是 Tendermint 广为流传的一张示意图。
+在拜占庭假设和部分同步系统假设的前提下，Tendermint 的核心逻辑就展现出来了。它包括三个阶段，两次投票。下面是 Tendermint 广为流传的一张示意图。
 
 ![Untitled](/assets/images/tendermint-img/Untitled.png)
 
-如上图，
+图中，
 
-- 系统首先通过 round-robin 选出一个 Leader，Leader 打包区块 Propose 一个提案，Replica 节点收到提案后进行验证，如果验证通过，广播 Prevote 同意投票(prevote for block)，失败则广播反对票(prevote for nil)，投票之后进入 Prevote 阶段。
-- 在发送了 Prevote 投票后，Replicas 收集其他节点的 Prevote 投票，如果收到 2/3+1 的 prevote for block 投票，则广播 precommit for block 投票，否则广播 precommit for nil 投票，进入 Precommit 阶段。
-- 在发送了 Precommit 投票后，Replicas 收集其他节点的 Precommit 投票，如果收到了 2/3+1 的 precommit for block 投票，则触发对该提案的 Commit 操作，并增加 Height，切换视图，发起对新 Height 的提案，否则对相同提案重新发起 Propose，重新收集投票尝试共识。
+- 系统首先选出一个 Leader，Leader 打包并 Propose 一个提案，Replica 节点收到提案后进行验证。如果验证通过，该 Replica 便广播 Prevote 同意票(prevote for block)，失败则广播反对票(prevote for nil)，投票之后该节点进入 Prevote 阶段。
+- 在发送了 Prevote 投票后，Replica 等待并收集其他节点的 Prevote 投票，如果收到 2/3+1 的 prevote for block 投票，则广播 precommit for block 投票，否则广播 precommit for nil 投票，之后进入 Precommit 阶段。
+- 发送了 Precommit 投票后，Replica 等待并收集其他节点的 Precommit 投票，如果收到了 2/3+1 的 precommit for block 投票，则触发对该提案的 Commit 操作，并增加 Height，切换视图，发起一个全新提案的共识，如果没有收集到足够的 Precommit 同意票，则会对相同提案重新发起 Propose。
 
-可见在 Tendermint 中，即使提案或某阶段验证失败，Replicas 也会投反对票，即使 Replica 在特定时间内没有收集到足够的同意票而触发超时，也不会进行视图切换，而是投反对票给其他节点，最终累积到 Precommit 阶段后进行视图切换。这与 HotStuff 逻辑是不同的，在 HotStuff 中，如果新提案验证失败，Replicas 不会投反对票，而是在 Leader 长时间收不到 2/3+1 的同意票后触发超时，当场进行视图切换并发起重试。这是因为 HotStuff 拥有快速视图切换的优势。
+在 Tendermint 中，即使提案或某阶段验证失败，Replicas 也会投反对票（而不是什么都不做），即使 Replica 在特定时间内没有收集到足够的同意票而触发超时，也不会像 HotStuff 那样当场进行视图切换，反对意见最终会累积到 Precommit 阶段后触发视图切换。而在 HotStuff 中，如果新提案验证失败，Replicas 不会投票，而是在 Leader 长时间收不到 2/3+1 的同意票后触发超时，当场进行视图切换并发起重试。能做到这点是因为 HotStuff 拥有更快的快速视图切换作为优势。
 
 Tendermint 分为三个阶段，分别是：
 
-- Proposal 阶段: 由 Leader 发起提案。
-- Prevote 阶段: 对提案进行验证，广播 Prevote 投票，并收集 2f+1 的 Prevote 投票，产生证明（相当于 LockedQC）。
-- Precommit 阶段: 将产生的 Prevote 证明广播给其他节点（Precommit 投票），并收集 2f+1 的 Precommit 同意票，尝试 Commit 或发起新 Proposal。
+- **Proposal 阶段**: 由 Leader 发起提案，可能是新的，也可能是上一轮未共识成功的提案。
+- **Prevote 阶段**: 所有节点对提案进行验证，根据结果广播相应的 Prevote 投票，之后收集 2f+1 其他节点的 Prevote 投票，尝试产生有效性证明（相当于 LockedQC）。此证明将用于系统共识的安全性，避免提案之间相互冲突。
+- **Precommit 阶段**: 将 Prevote 阶段产生的证明广播给其他节点（Precommit 投票），并尝试收集 2f+1 的 Precommit 同意票，成功则 Commit 并发起新的 Proposal，失败则重试原提案的共识。
 
-下图从节点消息收发的角度描述了 Tendermint 共识进行的过程。其中红色箭头表示同意票，蓝色箭头表示反对票。为了更好的表现出超时时间的作用，图中消息到达节点的时间是不同的。
+我尝试绘制了下图，从节点消息收发的角度描述了 Tendermint 共识进行的过程。其中红色箭头表示同意票，蓝色箭头表示反对票。为了更好的表现出超时时间的作用，图中消息到达节点的时间是不同的。每个阶段中当收到 2f+1 任意投票后会开始一个 timeout 计时。
 
 ![Untitled](/assets/images/tendermint-img/Untitled%201.png)
 
-这张图中有三段 timeout，这是 tendermint 中的核心部分：
+这张图中有三段 timeout，这也是 tendermint 中体现部分同步模型的地方：
 
-- proposal timeout：从进入 Proposal 阶段开始计时，如果在 timeout 时间内没有收到新的 Proposal，则广播 prevote for nil 投票。
-- prevote timeout：从收到 2/3+1 的 prevote 投票开始计时，如果在 timeout 时间内没有收到 2/3+1 的 prevote for block 投票，则广播 prevote for nil 投票。
-- precommit timeout：从收到 2/3+1 的 precommit 投票开始计时，如果在 timeout 时间内没有收到 2/3+1 的 precommit for block 投票，则对该提案重新发起一轮共识尝试。
+- **proposal timeout**：从进入 Proposal 阶段开始计时，如果在 proposal timeout 时间内节点没有收到新的 Proposal，则广播 prevote for nil 票。
+- **prevote timeout**：从收到 2/3+1 的 prevote 投票开始计时，如果在 prevote timeout 时间内没有收到 2/3+1 的 prevote for block 投票，则广播 prevote for nil 投票。
+- **precommit timeout**：从收到 2/3+1 的 precommit 投票开始计时，如果在 precommit timeout 时间内没有收到 2/3+1 的 precommit for block 投票，则对该提案重新发起一轮共识尝试。
 
-为了简便起见，我们可以认为这些 timeout 即为上文所说的部分同步模型中的 ∆ 值（实际上上文中的 ∆ 指的是从 GST 时刻开始算的，一般为发送消息的时候，而此处的 timeout 开始时间为 Replica 收到 2f+1 个投票时），在 timeout 结束时，Replica 可以收到全部诚实节点的消息。
+其实，这些 timeout 的本质就是部分同步模型中能够保证所有诚实节点消息到达的时间上限，保证在 timeout 结束时 Replica 能收到所有诚实节点的消息。此处解释一个我曾产生的疑问，即 timeout 并不是上文模型中的 ∆ ，∆ 是从 GST 时刻开始计算的，但由于我们无法明确 GST，所以在工程中是设计和讨论 ∆ 的长度是没有意义的，只需要关心 ∆ 的结束时刻就可以了。 
 
-当然，这涉及到 timeout 的选取，timeout 是动态选取的，当 timeout 时长小于真实的 ∆ 时，由于同意投票不足，我们无法完成针对提案的共识，系统便会丧失活性（liveness），但不会影响共识的 安全性（safety），此时只需要延长 timeout 就行了。理论上当 timeout ≥ 真实 ∆，系统可以恢复活性。
+我们需要尽量保证 timeout 的结束时刻在 ∆ 结束时刻之后，这便涉及到 timeout 的选取。timeout 是动态选取的，当 timeout 结束时刻 < ∆ 结束时刻时，由于同意投票不足，我们无法完成针对提案的共识，系统便会丧失活性（liveness），但不会影响共识的安全性（safety），此时只需要延长 timeout 就行了。理论上当 timeout 结束时刻 ≥ ∆ 结束时刻，系统可以恢复活性。
 
 接下来对三个阶段进行详细描述。
 
