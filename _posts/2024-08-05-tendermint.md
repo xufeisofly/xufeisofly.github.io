@@ -91,11 +91,11 @@ Replica 在广播了自己的 Prevote 投票后，开始收集其他 Replicas �
 
 **Precommit 阶段**
 
-进入 Precommit 阶段后，Replica 开始等待并收集其他节点的 Precommit 投票，与 Prevote 相同，当收到 2f+1 的同意票后，即可产生一个证明，这个证明表明了该提案已经可以被 Commit，所以在 BFT 共识中我们称之为 Proof of Commit，在 HotStuff 中即为 CommitQC。
+进入 Precommit 阶段后，Replica 开始等待并收集其他节点的 Precommit 投票，与 Prevote 相同，当收到 2f+1 的同意票后，即可产生一个证明，这个证明表明了该提案已经可以被 Commit，所以在 BFT 类共识中我们称之为 Proof of Commit，HotStuff 中的 CommitQC 就是一个 Proof of Commit。
 
-谁拥有了 CommitQC，就可以当场提交对应的提案并保证安全性。为了收集 2f+1 的 Precommit 同意票，Replica 在收到 2f+1 Precommit 任意投票（同意或反对）后开启 precommit timeout 计时，
+谁拥有了 Proof of Commit，就可以当场提交本视图的提案，不会影响共识的安全性。为了收集 2f+1 的 Precommit 同意票，Replica 在收到 2f+1 Precommit 任意投票（同意或反对）后开启 precommit timeout 计时，
 
-只要收集到了 2f+1 的同意票，就会触发 Replica 对该块的提交，将 Locked 状态变为 Committed 状态。然后开始视图切换，选出下一任 Leader，发起新提案的共识。而如果在超时结束之前没有收集到 2f+1 的 Precommit 同意票，应当放弃本次收集，更换视图，重新发起针对本提案的新一轮共识（height 不变，round+1）。如下图。
+期间只要收集到了 2f+1 的同意票，就会触发 Replica 对该块的提交，将提案从 Locked 状态变为 Committed 状态，然后开始视图切换：选出下一任 Leader 并安全地发起新提案的共识。而如果在超时结束之前没有收集到 2f+1 的 Precommit 同意票，应当放弃本次收集，更换视图，重新发起针对本提案的新一轮共识（height 不变，round+1）。如下图。此处说明，height 表示提案区块的高度，height 变化对应共识内容的变化，round 代表对同一个 height 的共识轮次，重试 Proposal 意味着 round 增加一次。
 
 ![Untitled](/assets/images/tendermint-img/Untitled%204.png)
 
