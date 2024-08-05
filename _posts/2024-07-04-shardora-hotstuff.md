@@ -703,19 +703,10 @@ Shardora 目前仍处于开发阶段，你可以前往[Github 项目地址](http
 
 其他参考内容如下。
 
-论文：
-[HotStuff: BFT Consensus in the Lens of Blockchain](https://arxiv.org/abs/1803.05069)
-
-[Fast-HotStuff: A Fast and Robust BFT Protocol for Blockchains](https://arxiv.org/pdf/2010.11454)
-文章：
-[State Machine Replication in the Libra Blockchain](https://diem-developers-components.netlify.app/papers/diem-consensus-state-machine-replication-in-the-diem-blockchain/2019-06-28.pdf)
-
-[What is the difference between PBFT, Tendermint, HotStuff, and HotStuff-2?](https://decentralizedthoughts.github.io/2023-04-01-hotstuff-2/)
-
-[https://hyperchain.readthedocs.io/zh-cn/stable/consensus](https://hyperchain.readthedocs.io/zh-cn/stable/consensus) mechanism.html#noxbft
-代码：
-[https://github.com/relab/hotstuff](https://github.com/relab/hotstuff)
-
-视频：
-
-[【Westar】Hotstuff 共识算法完全详解及区块链架构_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1wJ411j7PL/?share_source=copy_web&vd_source=6af902870cc1f5dfa4a37ebde5d2465a)
+- [HotStuff: BFT Consensus in the Lens of Blockchain](https://arxiv.org/abs/1803.05069)
+- [Fast-HotStuff: A Fast and Robust BFT Protocol for Blockchains](https://arxiv.org/pdf/2010.11454)
+- [State Machine Replication in the Libra Blockchain](https://diem-developers-components.netlify.app/papers/diem-consensus-state-machine-replication-in-the-diem-blockchain/2019-06-28.pdf)
+- [What is the difference between PBFT, Tendermint, HotStuff, and HotStuff-2?](https://decentralizedthoughts.github.io/2023-04-01-hotstuff-2/)
+- [https://hyperchain.readthedocs.io/zh-cn/stable/consensus](https://hyperchain.readthedocs.io/zh-cn/stable/consensus%20mechanism.html#noxbft
+- [https://github.com/relab/hotstuff](https://github.com/relab/hotstuff)
+- [【Westar】Hotstuff 共识算法完全详解及区块链架构_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1wJ411j7PL/?share_source=copy_web&vd_source=6af902870cc1f5dfa4a37ebde5d2465a)
