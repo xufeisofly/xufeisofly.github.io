@@ -24,6 +24,7 @@ tags:
 本文主要是对 Tendermint 共识层的学习和思考，不涉及其他部分。而学习 Tendermint 共识的前提，是了解**部分同步模型**这个概念。
 
 # 同步、异步和部分同步模型
+---
 
 根据网络中消息从发送到被接受的时间，我们将网络分为**同步、异步和部分同步**三种模型。
 
@@ -34,6 +35,7 @@ tags:
 目前已经证明，在异步模型下，如果存在节点宕机的可能，系统将永远无法达成共识，而同步模型由于需要一个漫长固定时间的等待，吞吐量往往较低。其实相比同步和异步，我们的网络更接近部分同步模型，Tendermint 和 HotStuff 都是基于部分同步模型设计的共识算法，即它们假设网络在某些时间段内可能是异步的，但在某个时刻之后变得同步。
 
 # Tendermint 共识算法
+---
 
 与 HotStuff 和其他 BFT 类共识一样，Tendermint 的前提是拜占庭假设，即满足恶意节点的数量 f 小于 1/3 总节点数。不过 Tendermint 接入了 PoS，使得每个节点的投票权重依赖于 Stake，而不是每个节点一票，Stake 大小决定了投票权重（Voting Power），所以我们所说的 2/3+1 指代的不再是节点数量，而是 Voting Power 的累积值。这点在使用阈值签名的原生 HotStuff 中无法实现，但在使用了聚合签名的 Fast HotStuff 中就可以做到。
 
@@ -104,7 +106,7 @@ Replica 在广播了自己的 Prevote 投票后，开始收集其他 Replicas �
 - 第一，新 Leader 完成提交并发起了新提案的共识，但此时其他 Replicas 还没有完成上一个提案的 Commit。那么新 Proposal 中可以携带上一视图的 Proof of Commit，促使其他节点在 Proposal 阶段完成上一个提案的提交。
 - 第二，新 Leader 已经 Lock 了该提案，但 precommit timeout 超时时还没有完成提交，然而其他 Replicas 有的已经完成了提交。那么新 Leader 会对提案（已经 Locked）进行「重试」（round+1），其他节点会重新投票，再走一遍 Prevote 和 Precommit 流程，直到下一任 Leader 能够成功 Commit。
 - 第三，在 precommit timeout 结束时，新 Leader 没有完成提交，并且上一阶段甚至没有 Lock 该提案，此时如果其他 Replicas 有的已经完成提交，那么新 Leader 发起的新提案可能与其他节点冲突，导致系统丧失活性。
-
+ 
 前两种情况都是是 ok 的，而第三种情况是由于 timeout 时间太短造成系统活性丧失。因此我们可以再次发现，就像比特币的 10min 出块时间一样，timeout 值的选取十分重要，如果太短，会导致节点永远无法收集到 2f+1 的同意票，从而系统不断地对同一个提案发起共识「重试」操作，使得系统丧失活性，但并不会影响共识的安全性。这也是部分同步系统中「同步」部分带来的问题。HotStuff 也有这个问题，如果我们将 HotStuff 中每个 View 的 timeout 设置的很小，那么 HotStuff 将会无法产生 QC，不断进行视图切换并重试投票，导致共识无法进行。
 
 下面是 Tendermint 论文中的协议伪代码，为了便于理解，我去掉了其中的 `validValue` 和 `validRound` 变量，因为我认为 `lockedValue` 和 `lockedRound` 可以表达新视图中需要打包旧提案的含义。同时还进行了一些细节改动，学习 tendermint 建议仔细阅读并保证理解。
@@ -205,6 +207,7 @@ Function OnTimeoutPrecommit(height, round):  /* 预提交超时函数 */
 ```
 
 # 视图切换
+---
 
 在之前的文章中我们了解了 HotStuff 快速的视图切换方案，现在来看一下 Tendermint 是如何做的，以及为什么说它牺牲了响应性。
 
@@ -265,9 +268,11 @@ Tendermint 并不会像 HotStuff 那样轻易进行视图切换，而是在广�
 - Happy path 意味着超时时间内节点收集到足够同意票并完成提交，该提案达成共识，可顺利进行视图切换。
 - Unhappy path 意味着节点在超时时间内并没有收集足够的同意票，需要等到超时结束。
 
-Tendermint 基于部分同步模型，认为 ∆ 时间内可以收集到所有诚实节点的投票，因此对于 Unhappy path 来说系统永远需要等待一个固定时间才能进行视图切换，这就是为什么说 Tendermint 牺牲了响应性，更确切的说是在 Unhappy path 下丧失了响应性（Responsiveness），具体可以参考这篇文章 [The latest view on Tendermint's responsiveness](https://informal.systems/blog/tendermint-responsiveness)。
+
+Tendermint 基于部分同步模型，认为 ∆ 时间内可以收集到所有诚实节点的投票，因此对于 Unhappy path 来说系统永远需要等待一个固定时间才能进行视图切换，这就是为什么说 Tendermint 牺牲了响应性，更确切的说是在 Unhappy path 下丧失了响应性（Responsiveness），具体可以参考 [The latest view on Tendermint's responsiveness](https://informal.systems/blog/tendermint-responsiveness)。
 
 # Q & A
+---
 
 **1. GST 究竟是什么？∆ 是什么？如果不等待 ∆ 会发生什么？**
 
@@ -287,6 +292,7 @@ HotStuff 的超时时间，效果与等待 ∆ 时间是一样的。它们都依
 不同的是，视图切换时 HotStuff 不需要等待更长的时间来保证收到所有诚实节点的状态，因此能做到更快（大不了重试），所以可以用更低的成本更换 Leader 来解决异步场景下带来的活性问题。而 Tendermint 往往需要等待更长的时间，保证收到所有诚实节点的消息来规避掉了这个问题，代价就是降低了吞吐。
 
 # 参考资料
+---
 
 - [Dive Into Tendermint Consensus Protocol](https://coinexsmartchain.medium.com/dive-into-tendermint-consensus-protocol-i-fbc9b56f75e8)
 - [The latest view on Tendermint's responsiveness](https://informal.systems/blog/tendermint-responsiveness)
