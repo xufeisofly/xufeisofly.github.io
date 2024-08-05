@@ -279,14 +279,9 @@ HotStuff 的超时时间，效果与等待 ∆ 时间是一样的。它们都依
 
 # 参考资料
 
-[Dive Into Tendermint Consensus Protocol](https://coinexsmartchain.medium.com/dive-into-tendermint-consensus-protocol-i-fbc9b56f75e8)
-
-[The latest view on Tendermint's responsiveness](https://informal.systems/blog/tendermint-responsiveness)
-
-[Compared with traditional PBFT, what advantage...](https://www.reddit.com/r/cosmosnetwork/comments/8i42qa/compared_with_traditional_pbft_what_advantage/)
-
-[On the Design and Accountability of Byzantine Fault-Tolerant Protocols](https://www.youtube.com/watch?v=MJ8NxwmBFhU)
-
-[Tendermint Explained — Bringing BFT-based PoS to the Public Blockchain Domain](https://blog.cosmos.network/tendermint-explained-bringing-bft-based-pos-to-the-public-blockchain-domain-f22e274a0fdb)
-
-[Tendermint-2-共识算法:Tendermint-BFT详解](https://blog.csdn.net/weixin_43988498/article/details/119031945)
+- [Dive Into Tendermint Consensus Protocol](https://coinexsmartchain.medium.com/dive-into-tendermint-consensus-protocol-i-fbc9b56f75e8)
+- [The latest view on Tendermint's responsiveness](https://informal.systems/blog/tendermint-responsiveness)
+- [Compared with traditional PBFT, what advantage...](https://www.reddit.com/r/cosmosnetwork/comments/8i42qa/compared_with_traditional_pbft_what_advantage/)
+- [On the Design and Accountability of Byzantine Fault-Tolerant Protocols](https://www.youtube.com/watch?v=MJ8NxwmBFhU)
+- [Tendermint Explained — Bringing BFT-based PoS to the Public Blockchain Domain](https://blog.cosmos.network/tendermint-explained-bringing-bft-based-pos-to-the-public-blockchain-domain-f22e274a0fdb)
+- [Tendermint-2-共识算法:Tendermint-BFT详解](https://blog.csdn.net/weixin_43988498/article/details/119031945)
