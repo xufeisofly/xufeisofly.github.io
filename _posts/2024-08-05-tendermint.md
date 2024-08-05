@@ -258,14 +258,14 @@ type ConsensusConfig struct {
 }
 ```
 
-HotStuff 视图之间的切换是通过 QC 进行的，QC 作为 2/3+1 节点对当前状态的共识，可以作为一个 Status Cert 提供给下一个视图的 Replica 节点，说服它们接受当前新的提案。不光是视图的切换，从上一个阶段进入下一个阶段时，HotStuff 的 Leader 也需要等待 2/3+1 的有效投票，从而达成共识。
+HotStuff 视图之间的切换是通过对 highQC 的收集进行的，QC 作为 2/3+1 节点对当前状态的共识，可以作为一个 Status Cert 提供给下一个视图的 Replica 节点，说服它们接受当前新的提案。不光是视图的切换，从上一个阶段进入下一个阶段时，HotStuff 的 Leader 也需要等待 2/3+1 的有效投票，从而达成共识。
 
-而 Tendermint 并不会像 HotStuff 那样轻易进行视图切换，而是在广播自己的投票进入下一阶段后等待一段时间 ∆ 来收集 2/3+1 节点的同意投票，这仍然分为 Happy path 和 Unhappy path 两种情况。
+Tendermint 并不会像 HotStuff 那样轻易进行视图切换，而是在广播自己的投票进入下一阶段后等待一段时间 ∆ 来收集 2/3+1 节点的同意投票，这就分为 Happy path 和 Unhappy path 两种情况。
 
-- Happy path 意味着超时时间内下一轮 Leader 收集成功并提交，该提案达成共识，可顺利进行视图切换。
-- Unhappy path 意味着下一轮的 Leader 在超时时间内并没有收集足够的同意票，需要等到超时结束。
+- Happy path 意味着超时时间内节点收集到足够同意票并完成提交，该提案达成共识，可顺利进行视图切换。
+- Unhappy path 意味着节点在超时时间内并没有收集足够的同意票，需要等到超时结束。
 
-Tendermint 基于部分同步模型，认为 ∆ 时间内可以收集到所有诚实节点的投票，因此对于 Unhappy path 来说系统需要等待一个固定时间才能进行视图切换，这就是为什么说 Tendermint 牺牲了响应性，更确切的说是在 Unhappy path 下丧失了响应性（Responsiveness）。
+Tendermint 基于部分同步模型，认为 ∆ 时间内可以收集到所有诚实节点的投票，因此对于 Unhappy path 来说系统永远需要等待一个固定时间才能进行视图切换，这就是为什么说 Tendermint 牺牲了响应性，更确切的说是在 Unhappy path 下丧失了响应性（Responsiveness），具体可以参考这篇文章 [The latest view on Tendermint's responsiveness](https://informal.systems/blog/tendermint-responsiveness)。
 
 # Q & A
 
