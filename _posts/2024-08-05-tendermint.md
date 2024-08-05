@@ -101,11 +101,11 @@ Replica 在广播了自己的 Prevote 投票后，开始收集其他 Replicas �
 
 仔细思考能发现这里有三种情况：
 
-- 第一，新 Leader 完成提交并发起了新提案的共识，但此时其他 Replicas 还没有完成上一个提案的 Commit。那么新 Proposal 中可以携带 CommitQC，促使其他节点在 Proposal 阶段完成上一个提案的提交。
-- 第二，新 Leader 已经 Lock 了该提案，但 precommit timeout 超时时还没有完成提交，但其他 Replicas 有的已经完成提交。那么新 Leader 会对本次提案（已经 Locked）的共识进行「重试」（round+1），其他节点会重新投票，再走一遍 Prevote 和 Precommit 流程，直到下一任 Leader 能够成功 Commit。
+- 第一，新 Leader 完成提交并发起了新提案的共识，但此时其他 Replicas 还没有完成上一个提案的 Commit。那么新 Proposal 中可以携带上一视图的 Proof of Commit，促使其他节点在 Proposal 阶段完成上一个提案的提交。
+- 第二，新 Leader 已经 Lock 了该提案，但 precommit timeout 超时时还没有完成提交，然而其他 Replicas 有的已经完成了提交。那么新 Leader 会对提案（已经 Locked）进行「重试」（round+1），其他节点会重新投票，再走一遍 Prevote 和 Precommit 流程，直到下一任 Leader 能够成功 Commit。
 - 第三，在 precommit timeout 结束时，新 Leader 没有完成提交，并且上一阶段甚至没有 Lock 该提案，此时如果其他 Replicas 有的已经完成提交，那么新 Leader 发起的新提案可能与其他节点冲突，导致系统丧失活性。
 
-因此我们可以再次发现，就像比特币的 10min 出块时间一样，timeout 值的选取十分重要，如果太短，会导致节点永远无法收集到 2f+1 的同意票，从而系统不断地对同一个提案发起共识「重试」操作，使得系统丧失活性，但并不会影响共识的安全性。这也是部分同步系统中「同步」部分带来的问题。HotStuff 也有这个问题，如果我们将 HotStuff 中每个 View 的 timeout 设置的很小，那么 HotStuff 将会无法产生 QC，不断进行视图切换并重试投票，丧失活性。
+前两种情况都是是 ok 的，而第三种情况是由于 timeout 时间太短造成系统活性丧失。因此我们可以再次发现，就像比特币的 10min 出块时间一样，timeout 值的选取十分重要，如果太短，会导致节点永远无法收集到 2f+1 的同意票，从而系统不断地对同一个提案发起共识「重试」操作，使得系统丧失活性，但并不会影响共识的安全性。这也是部分同步系统中「同步」部分带来的问题。HotStuff 也有这个问题，如果我们将 HotStuff 中每个 View 的 timeout 设置的很小，那么 HotStuff 将会无法产生 QC，不断进行视图切换并重试投票，导致共识无法进行。
 
 下面是 Tendermint 论文中的协议伪代码，为了便于理解，我去掉了其中的 `validValue` 和 `validRound` 变量，因为我认为 `lockedValue` 和 `lockedRound` 可以表达新视图中需要打包旧提案的含义。同时还进行了一些细节改动，学习 tendermint 建议仔细阅读并保证理解。
 
@@ -206,13 +206,13 @@ Function OnTimeoutPrecommit(height, round):  /* 预提交超时函数 */
 
 # 视图切换
 
-在了解了 HotStuff 快速的视图切换方案之后，我们来看一下 Tendermint 是如何做的，以及为什么说它牺牲了响应性。
+在之前的文章中我们了解了 HotStuff 快速的视图切换方案，现在来看一下 Tendermint 是如何做的，以及为什么说它牺牲了响应性。
 
-Tendermint 并不存在 Happy Path 和 Unhappy Path，而是把这两种情况合二为一，复用同一套逻辑，这是 Tendermint 的优点之一。和 HotStuff 不同，HotStuff 在发生超时时认为进入了 Unhappy Path，发起 Timeout 消息，当 Timeout 超过 2f+1 时进行视图切换，这与共识成功情况下的视图切换逻辑是完全分离的。而 Tendermint 无论是否成功提交，都会在 Precommit 阶段末尾使用同一套逻辑发起视图切换，如下图。
+Tendermint 并不存在 Happy Path 和 Unhappy Path，而是把这两种情况合二为一，复用同一套逻辑，这是 Tendermint 的一大优点。而 HotStuff 则是在发生超时时认为进入了 Unhappy Path，使用独立的超时逻辑解决，即发送 Timeout 消息，收集 highQC 以进行视图切换。而 Tendermint 无论是否成功提交，都会在 Precommit 阶段末尾使用同一套逻辑发起视图切换，如下图。
 
 ![Untitled](/assets/images/tendermint-img/Untitled%205.png)
 
-上图中的 Precommit 阶段为了方便理解，我们省略了其他节点接受的 Precommit 投票，仅针对下一任 Leader(节点2)收集投票过程进行分析。由于 Prevote 阶段中仅节点 1，4 收到了 2f+1 个 PREVOTE 投票，导致仅两个节点 Lock 该提案，而节点4又是拜占庭节点。因此在节点2收集 Precommit 投票时，在收到 2f+1 投票时有可能收集的都是提案处于 unlocked 状态，那么新 Leader 就会打包一个与节点1冲突的提案，因此需要多等待一个 ∆ 时间，即 precommit timeout，由于是部分同步系统，可以保证 Timeout 结束前能够收到所有诚实节点的消息，即节点 1 的 locked 消息，从而保证视图切换的安全。
+为了简化理解，我们省略了其他节点接受的 Precommit 投票，仅针对下一任 Leader(节点2)收集投票过程进行分析。由于 Prevote 阶段中仅节点 1，4 收到了 2f+1 个 PREVOTE 投票，导致仅两个节点 Lock 该提案，而节点4又是拜占庭节点。因此在节点2收集 Precommit 投票时，在收到 2f+1 投票时有可能收集的都是提案处于 unlocked 状态，那么新 Leader 就会打包一个与节点1冲突的提案，因此需要多等待一个 ∆ 时间，即 precommit timeout，由于是部分同步系统，可以保证 Timeout 结束前能够收到所有诚实节点的消息，即节点 1 的 locked 消息，从而保证视图切换的安全。
 
 实际项目中 timeout 时间是动态的，如果 timeout 当前时间短于实际需要的时间（即收到所有诚实节点消息的时间），那么就会导致频繁的共识失败，此时需要增加 timeout 时间，用于保证共识的活性。以下配置为 Tendermint Core 中不同超时时间的配置。
 
@@ -258,9 +258,14 @@ type ConsensusConfig struct {
 }
 ```
 
-总的来说，HotStuff 视图之间的切换是通过 QC 进行的，QC 作为 2/3+1 节点对当前状态的共识，可以作为一个 Status Cert 提供给下一个视图的 Replica 节点，说服它们接受当前新的提案。不光是视图的切换，从上一个阶段进入下一个阶段时，HotStuff 的 Leader 也需要等待 2/3+1 的有效投票，从而达成共识。
+HotStuff 视图之间的切换是通过 QC 进行的，QC 作为 2/3+1 节点对当前状态的共识，可以作为一个 Status Cert 提供给下一个视图的 Replica 节点，说服它们接受当前新的提案。不光是视图的切换，从上一个阶段进入下一个阶段时，HotStuff 的 Leader 也需要等待 2/3+1 的有效投票，从而达成共识。
 
-而 Tendermint 并不会像 HotStuff 那样轻易进行视图切换，而是在广播自己的投票进入下一阶段后等待 ∆ 时间来收集 2/3+1 节点的投票，Tendermint 基于部分同步模型，认为 ∆ 时间内可以收集到所有诚实节点的投票，那么只要这些投票中有 2/3+1 对该 Block 的投票，即认为该阶段达成共识，可以进入下一阶段。
+而 Tendermint 并不会像 HotStuff 那样轻易进行视图切换，而是在广播自己的投票进入下一阶段后等待一段时间 ∆ 来收集 2/3+1 节点的同意投票，这仍然分为 Happy path 和 Unhappy path 两种情况。
+
+- Happy path 意味着超时时间内下一轮 Leader 收集成功并提交，该提案达成共识，可顺利进行视图切换。
+- Unhappy path 意味着下一轮的 Leader 在超时时间内并没有收集足够的同意票，需要等到超时结束。
+
+Tendermint 基于部分同步模型，认为 ∆ 时间内可以收集到所有诚实节点的投票，因此对于 Unhappy path 来说系统需要等待一个固定时间才能进行视图切换，这就是为什么说 Tendermint 牺牲了响应性，更确切的说是在 Unhappy path 下丧失了响应性（Responsiveness）。
 
 # Q & A
 
