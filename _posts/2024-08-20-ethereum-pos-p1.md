@@ -1,5 +1,5 @@
 ---
-title: 干掉以太坊之以太坊的共识机制 - Part 1
+title: 以太坊的 PoS - Part 1
 layout: post
 post-image: "/assets/images/ethereum-pos-p1-img/head.jpg"
 tags:
