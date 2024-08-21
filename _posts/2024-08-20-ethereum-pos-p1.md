@@ -98,7 +98,7 @@ Vlad 曾提出过一个简单的解决方案用于解决 Long Range Attack，就
 
 Cartel 这个词代表一个恶意的小团体，Censorship Attack 被翻译成了「审查攻击」（有点不知所云），有人说 Censorship 是打马赛克的意思，总之区块链中的 Cartel Censorship Attack 可以理解为一个或多个参与区块链网络的节点联合起来，通过共谋控制网络的共识过程，从而干扰特定交易或区块。
 
-一个共识算法能容忍多少节点联合起来进行攻击，就代表了它对 Censorship Attack 的抵御程度。比如 PoW 和 PoS，一个 51% 的 Cartel 可以对剩余节点进行攻击，而 BFT 中 67% 的 Cartel 可以回滚交易，但只需要 34% 的 Cartel 就可以阻止共识的达成。因此 Vlad 认为，**这种对于恶意节点数量有很强假设的共识协议不适合现有的公链**，因为现有的公链中大部分权力（无论是 Work 还是 Stake）都被小部分 Cartel 所控制。
+一个共识算法能容忍多少节点联合起来进行攻击，就代表了它对 Censorship Attack 的抵御程度。比如 PoW 和 PoS，一个 51% 的 Cartel 可以对剩余节点进行攻击，而 BFT 中 67% 的 Cartel 可以控制共识网络，但只需要 34% 的 Cartel 就可以阻止共识的达成。因此 Vlad 认为，**这种对于恶意节点数量有很强假设的共识协议不适合现有的公链**，因为现有的公链中大部分权力（无论是 Work 还是 Stake）都被小部分 Cartel 所控制。
 
 这意味着当 1/3 节点联合成为 Cartel 并尝试干扰共识时，整个共识协议将会卡死，丧失活性。所以我在 HotStuff 那片[文章](https://xufeisofly.github.io/blog/shardora-hotstuff)中提到的 BFT 共识相比中本聪共识会降低安全性是不正确的，实际上安全性是提高的但是活性会降低，在此更正。
 
