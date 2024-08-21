@@ -386,3 +386,38 @@ a {
 .site-footer-credits {
   color: $blockquote-text-color;
 }
+
+.toc {
+    border: 1px solid #ccc; /* 给目录部分添加一个灰色的边框 */
+    padding: 15px; /* 给目录内容添加内边距 */
+    margin-bottom: 20px; /* 让目录和后续内容有一点间距 */
+    background-color: #f9f9f9; /* 为目录背景添加浅灰色 */
+    border-radius: 5px; /* 为边框添加圆角 */
+}
+
+.toc h1 {
+    margin-top: 0; /* 去掉 h1 元素的顶部外边距 */
+	text-align: center;
+}
+
+.toc ul {
+    list-style: none; /* 去掉默认的列表样式 */
+    padding-left: 5%; /* 去掉默认的列表缩进 */
+}
+
+.toc ul ul {
+    padding-left: 20px; /* 给嵌套的列表添加缩进 */
+}
+
+.toc a {
+    // text-decoration: none; /* 去掉链接的下划线 */
+    // color: #007bff; /* 设置链接的颜色 */
+}
+
+.toc a:hover {
+    text-decoration: underline; /* 鼠标悬停时显示下划线 */
+}
+
+.toc li {
+    margin-bottom: 5px; /* 列表项之间的间距 */
+}

@@ -50,6 +50,14 @@ author-about: Eh...
 # URL to the Author's Profile (i.e., Github, Twitter, Stackoverflow, etc)
 author-url: https://github.com/xufeisofly
 
+markdown: kramdown
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
 # SASS
 sass:
   sass_dir: _sass
@@ -83,6 +91,7 @@ defaults:
       type: 'pages'
     values:
       layout: page
+      
 
 # Exclude
 exclude:
