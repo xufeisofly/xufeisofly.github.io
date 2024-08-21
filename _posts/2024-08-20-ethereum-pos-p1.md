@@ -100,6 +100,12 @@ Cartel 这个词代表一个恶意的小团体，Censorship Attack 被翻译成�
 
 一个共识算法能容忍多少节点联合起来进行攻击，就代表了它对 Censorship Attack 的抵御程度。比如 PoW 和 PoS，一个 51% 的 Cartel 可以对剩余节点进行攻击，而 BFT 中 67% 的 Cartel 可以回滚交易，但只需要 34% 的 Cartel 就可以阻止共识的达成。因此 Vlad 认为，**这种对于恶意节点数量有很强假设的共识协议不适合现有的公链**，因为现有的公链中大部分权力（无论是 Work 还是 Stake）都被小部分 Cartel 所控制。
 
+这意味着当 1/3 节点联合成为 Cartel 并尝试干扰共识时，整个共识协议将会卡死，丧失活性。所以我在 HotStuff 那片[文章](https://xufeisofly.github.io/blog/shardora-hotstuff)中提到的 BFT 共识相比中本聪共识会降低安全性是不正确的，实际上安全性是提高的但是活性会降低，在此更正。
+
+除此之外，BFT 共识也牺牲了去中心化程度（毕竟安全性和可扩展性都很高，根据不可能三角只能是牺牲去中心化了）。Matthew Wampler-Doty 在 2015 年给出了一个关于去中心化的定义：当一个协议哪怕只剩下一个节点也能恢复过来时，这个协议就是去中心化的。显然 BFT 由于必须满足恶意节点个数小于 1/3 而不能满足这个条件。
+
+> A protocol is decentralized only if it can fully recover from the permanent removal of all but one of its nodes.
+
 最后以太坊团队提出了 Gasper 协议，其实是将 Casper FFG 协议套用在改进后的 GHOST 协议上（LMD GHOST），前者负责在特定检查点最终确定一个区块（最终确定性），后者负责进行分叉选择（分叉选择规则）。
 
 # 以太坊 PoS 的舍与得
