@@ -59,10 +59,10 @@ li {
 
 a {
   color: $body-link-color;
-  text-decoration: none;
+  text-decoration: none !important;
 
   &:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
   }
 }
 
@@ -398,6 +398,7 @@ a {
 .toc h1 {
     margin-top: 0; /* 去掉 h1 元素的顶部外边距 */
 	text-align: center;
+	color: black;
 }
 
 .toc ul {
@@ -410,14 +411,13 @@ a {
 }
 
 .toc a {
-    // text-decoration: none; /* 去掉链接的下划线 */
+    text-decoration: none !important; /* 去掉链接的下划线 */
+	&:hover {
+		text-decoration: underline !important;
+	}
     // color: #007bff; /* 设置链接的颜色 */
 }
 
-.toc a:hover {
-    text-decoration: underline; /* 鼠标悬停时显示下划线 */
-}
-
 .toc li {
-    margin-bottom: 5px; /* 列表项之间的间距 */
+    // margin-bottom: 1rem; /* 列表项之间的间距 */
 }
