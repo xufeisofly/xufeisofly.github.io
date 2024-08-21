@@ -389,8 +389,8 @@ a {
 
 .toc {
     border: 1px solid #ccc; /* 给目录部分添加一个灰色的边框 */
-    padding: 15px; /* 给目录内容添加内边距 */
-    margin-bottom: 20px; /* 让目录和后续内容有一点间距 */
+    padding: 2rem; /* 给目录内容添加内边距 */
+    margin-bottom: 2rem; /* 让目录和后续内容有一点间距 */
     background-color: #f9f9f9; /* 为目录背景添加浅灰色 */
     border-radius: 5px; /* 为边框添加圆角 */
 }
@@ -402,11 +402,12 @@ a {
 }
 
 .toc ul {
-    list-style: none; /* 去掉默认的列表样式 */
-    padding-left: 5%; /* 去掉默认的列表缩进 */
+    list-style: none !important; /* 去掉默认的列表样式 */
+    padding-left: 3%; /* 去掉默认的列表缩进 */
 }
 
 .toc ul ul {
+	list-style: none !important;
     padding-left: 20px; /* 给嵌套的列表添加缩进 */
 }
 
@@ -419,5 +420,6 @@ a {
 }
 
 .toc li {
-    // margin-bottom: 1rem; /* 列表项之间的间距 */
+	// list-style: square !important;
+    margin-bottom: 0rem; /* 列表项之间的间距 */
 }
