@@ -1,6 +1,6 @@
 ---
 title: 关于区块链这几天我想到的
-layout: post
+layout: post-nocontent
 post-image: "/assets/images/about-blockchain-img/head.jpg"
 tags:
 - blockchain
