@@ -156,16 +156,16 @@ Safety（安全性）和 Liveness（活性）是共识协议经常关注的两�
 
 ---
 
-- https://learnblockchain.cn/article/4778
-- https://arxiv.org/pdf/2003.03052
-- https://www.ethereum.cn/casper-ffg-explainer
-- https://medium.com/taipei-ethereum-meetup/history-and-state-of-ethereums-casper-research-85e8fba26002
-- https://medium.com/taipei-ethereum-meetup/intro-to-casper-ffg-and-eth-2-0-95705e9304d6
-- https://medium.com/unitychain/intro-to-casper-ffg-9ed944d98b2d
-- https://notes.ethereum.org/@vbuterin/serenity_design_rationale?type=view
-- https://blog.ethereum.org/2015/12/28/understanding-serenity-part-2-casper
-- https://medium.com/@Vlad_Zamfir/the-history-of-casper-part-1-59233819c9a9
-- https://medium.com/@Vlad_Zamfir/the-history-of-casper-chapter-5-8652959cef58
-- https://blog.ethereum.org/2014/11/25/proof-stake-learned-love-weak-subjectivity
-- https://eth2book.info/capella/part2/consensus/preliminaries/
-- https://blog.ethereum.org/2016/05/09/on-settlement-finality
+- [https://learnblockchain.cn/article/4778](https://learnblockchain.cn/article/4778)
+- [https://arxiv.org/pdf/2003.03052](https://arxiv.org/pdf/2003.03052)
+- [https://www.ethereum.cn/casper-ffg-explainer](https://www.ethereum.cn/casper-ffg-explainer)
+- [https://medium.com/taipei-ethereum-meetup/history-and-state-of-ethereums-casper-research-85e8fba26002](https://medium.com/taipei-ethereum-meetup/history-and-state-of-ethereums-casper-research-85e8fba26002)
+- [https://medium.com/taipei-ethereum-meetup/intro-to-casper-ffg-and-eth-2-0-95705e9304d6](https://medium.com/taipei-ethereum-meetup/intro-to-casper-ffg-and-eth-2-0-95705e9304d6)
+- [https://medium.com/unitychain/intro-to-casper-ffg-9ed944d98b2d](https://medium.com/unitychain/intro-to-casper-ffg-9ed944d98b2d)
+- [https://notes.ethereum.org/@vbuterin/serenity_design_rationale?type=view](https://notes.ethereum.org/@vbuterin/serenity_design_rationale?type=view)
+- [https://blog.ethereum.org/2015/12/28/understanding-serenity-part-2-casper](https://blog.ethereum.org/2015/12/28/understanding-serenity-part-2-casper)
+- [https://blog.ethereum.org/2015/12/28/understanding-serenity-part-2-casper](https://medium.com/@Vlad_Zamfir/the-history-of-casper-part-1-59233819c9a9)
+- [https://medium.com/@Vlad_Zamfir/the-history-of-casper-chapter-5-8652959cef58](https://medium.com/@Vlad_Zamfir/the-history-of-casper-chapter-5-8652959cef58)
+- [https://blog.ethereum.org/2014/11/25/proof-stake-learned-love-weak-subjectivity](https://blog.ethereum.org/2014/11/25/proof-stake-learned-love-weak-subjectivity)
+- [https://eth2book.info/capella/part2/consensus/preliminaries/](https://eth2book.info/capella/part2/consensus/preliminaries/)
+- [https://blog.ethereum.org/2016/05/09/on-settlement-finality](https://blog.ethereum.org/2016/05/09/on-settlement-finality)
