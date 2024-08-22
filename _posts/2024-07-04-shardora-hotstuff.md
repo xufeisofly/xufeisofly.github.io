@@ -1,6 +1,6 @@
 ---
 title: HotStuff 工程设计与实现
-layout: post
+layout: post-with-content
 post-image: "/assets/images/shardora-hotstuff-img/head.jpg"
 tags:
 - hotstuff
@@ -67,31 +67,31 @@ HotStuff 共识算法中涉及一些基本概念：
 
 图中展示了五个阶段，所谓的三阶段指的是从节点有三次投票。
 
-- **Prepare 阶段**：
+**Prepare 阶段**
     
-    当一个区块要发起共识时，Leader 会打包提案 Proposal 并广播，Replicas 收到后需要完成一系列校验，校验通过后签名并返回投票。Leader 收到 `2/3+1` 的投票后，即可产生一个群体证明 QC，此 QC 是该 Proposal 的第一个 QC，称为 PrepareQC。
+当一个区块要发起共识时，Leader 会打包提案 Proposal 并广播，Replicas 收到后需要完成一系列校验，校验通过后签名并返回投票。Leader 收到 `2/3+1` 的投票后，即可产生一个群体证明 QC，此 QC 是该 Proposal 的第一个 QC，称为 PrepareQC。
     
     PrepareQC 表示有足够多的节点认可该提案。因此，拥有 PrepareQC 的节点会无条件认可该提案的合法性。
     
-- **Precommit 阶段**：
+**Precommit 阶段**
     
-    Leader 产生 PrepareQC 后，需要将 PrepareQC 同步给所有的 Replicas（虽然 Leader 知道提案是合法的，但其他节点还不知道），因此广播 PrepareQC。Replicas 收到后再次签名投票告知 Leader。Leader 收到超过 `2/3+1` 的回执后，生成一个新的 QC，称为 PrecommitQC。
+Leader 产生 PrepareQC 后，需要将 PrepareQC 同步给所有的 Replicas（虽然 Leader 知道提案是合法的，但其他节点还不知道），因此广播 PrepareQC。Replicas 收到后再次签名投票告知 Leader。Leader 收到超过 `2/3+1` 的回执后，生成一个新的 QC，称为 PrecommitQC。
     
-    PrecommitQC 表示大部分节点已经得知该提案的合法，该提案可以被随时提交。因此，拥有 PrecommitQC 的节点会认为该提案一定会被自己提交，PrecommitQC 也称为 LockedQC。
+PrecommitQC 表示大部分节点已经得知该提案的合法，该提案可以被随时提交。因此，拥有 PrecommitQC 的节点会认为该提案一定会被自己提交，PrecommitQC 也称为 LockedQC。
     
-- **Commit 阶段**：
+**Commit 阶段**
     
-    Leader 产生 LockedQC 后，需要将其同步给其他节点，拥有 LockedQC 的节点认为该提案一定会被自己提交，但却不知道其他节点是否也一定会提交，贸然提交可能会导致状态不一致，因此再次签名返回投票。Leader 收到 `2/3+1` 投票后生成一个 QC，称为 CommitQC。
+Leader 产生 LockedQC 后，需要将其同步给其他节点，拥有 LockedQC 的节点认为该提案一定会被自己提交，但却不知道其他节点是否也一定会提交，贸然提交可能会导致状态不一致，因此再次签名返回投票。Leader 收到 `2/3+1` 投票后生成一个 QC，称为 CommitQC。
     
     CommitQC 表示大部分节点都认为该提案会被自己提交。因此，拥有 CommitQC 的节点可以立刻执行提案，不用担心其他节点不提交提案造成状态不一致。
     
-- **Decide 阶段**：
+**Decide 阶段**
     
-    Leader 广播 CommitQC（即 Commit Proof）给所有节点，收到命令的节点立刻提交该提案。需要说明的是，即使因为网络原因部分节点没有收到 CommitQC，之后也可以随时补发 CommitQC，保证最终一致性。
+Leader 广播 CommitQC（即 Commit Proof）给所有节点，收到命令的节点立刻提交该提案。需要说明的是，即使因为网络原因部分节点没有收到 CommitQC，之后也可以随时补发 CommitQC，保证最终一致性。
     
-- **NewView 阶段**：
+**NewView 阶段**
     
-    NewView 是一个特殊阶段，用于开启一个新的共识。当一个视图 View 完成共识或因异常放弃共识时触发。此阶段的主要功能是切换大部分节点到新视图，并通过收集最后的共识信息，保证新视图的合法性。比如，原生 HotStuff 在此阶段会收集最新的 PrepareQC 以生成新视图，一些改进的 HotStuff 协议会对当前 View 进行签名投票，生成超时证明（Timeout Certificate），用于生成新视图并广播提案。
+NewView 是一个特殊阶段，用于开启一个新的共识。当一个视图 View 完成共识或因异常放弃共识时触发。此阶段的主要功能是切换大部分节点到新视图，并通过收集最后的共识信息，保证新视图的合法性。比如，原生 HotStuff 在此阶段会收集最新的 PrepareQC 以生成新视图，一些改进的 HotStuff 协议会对当前 View 进行签名投票，生成超时证明（Timeout Certificate），用于生成新视图并广播提案。
     
 
 说明：工程实现中为提高安全性，每一个视图会进行 Leader 轮换。另外，Prepare 阶段可以同时承担上一个视图 Decide 阶段的功能，在新提案中打包上一个视图的 CommitQC，用来提高系统 TPS。
