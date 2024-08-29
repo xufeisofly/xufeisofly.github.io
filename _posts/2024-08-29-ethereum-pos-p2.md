@@ -119,6 +119,52 @@ LMD 表示在选取 HeadBlock 考虑分叉权重时，只需要考虑每个 Vali
 
 ![image.png](/assets/images/ethereum-pos-p2-img/image6.png)
 
+为了更直观的理解这个过程，这里推荐[这个LMD GHOST源码项目](https://github.com/protolambda/lmd-ghost/tree/master)。下面摘取并注释了 `GetHead` 部分的代码：
+
+```go
+// 选择并获取权威链的叶子节点
+func (gh *SpecLMDGhost) HeadFn() *dag.DagNode {
+	head := gh.dag.Justified // 从 root block 开始查找
+	for {
+		if len(head.Children) == 0 { // 直到叶子节点
+			return head
+		}
+		bestItem := head.Children[0]
+		var bestScore int64 = 0
+		for _, child := range head.Children {
+			childVotes := gh.getVoteCount(child) // 选择投票权重最大的子块所在路径
+			if childVotes > bestScore {
+				bestScore = childVotes
+				bestItem = child
+			}
+		}
+		head = bestItem
+	}
+}
+
+// 获取 block 权重
+func (gh *SpecLMDGhost) getVoteCount(block *dag.DagNode) int64 {
+	totalWeight := int64(0)
+	for target, weight := range gh.latestScores { // 仅考虑各个 Validator 最新的一次投票
+		if anc := gh.getAncestor(target, block.Slot); anc != nil && anc == target { // 找到投票的目标区块，并进行权重求和
+			totalWeight += weight
+		}
+	}
+	return totalWeight
+}
+
+/// 从 attestation 所在的区块往回找，找到其投票的目标区块
+func (gh *SpecLMDGhost) getAncestor(block *dag.DagNode, slot uint64) *dag.DagNode {
+	if block.Slot == slot {
+		return block
+	} else if block.Slot < slot {
+		return nil
+	} else {
+		return gh.getAncestor(block.Parent, slot)
+	}
+}
+```
+
 ## 权重计算
 
 上面例子为了便于理解，令每个 Validator Set 中仅有一个节点，所以 Proposer 不需要额外收集投票。实际上每一个 Block 发布后需要收集 Validator Set 中其他验证者投票，并以投票权重之和作为该 Block 的最终权重。一个 Block 的权重等于该 Block 收到的 attestation 投票的权重总和，加上其子块提供的权重，并且在计算权重时仅考虑 Validator 最后一次 attestation，如下图中 Validator Set 为 A,B,C,D,E 5 个节点。
