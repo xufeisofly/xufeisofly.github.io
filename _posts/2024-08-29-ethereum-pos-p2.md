@@ -1,6 +1,6 @@
 ---
 title: 以太坊的 PoS - Part2 LMD GHOST
-layout: post
+layout: post-with-content
 post-image: "/assets/images/ethereum-pos-p2-img/head.jpg"
 tags:
 - ethereum
