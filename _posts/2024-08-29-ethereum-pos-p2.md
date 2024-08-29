@@ -165,3 +165,4 @@ Proposer 同样存在 nothing at stake 行为，一个 Proposer 可能选择同�
 - [https://medium.com/coinmonks/an-in-depth-look-at-the-ghost-protocol-part-2-how-ghost-works-50e49edf7a52](https://medium.com/coinmonks/an-in-depth-look-at-the-ghost-protocol-part-2-how-ghost-works-50e49edf7a52)
 - [https://vitalik.eth.limo/general/2018/12/05/cbc_casper.html](https://vitalik.eth.limo/general/2018/12/05/cbc_casper.html)
 - [https://github.com/ethereum/annotated-spec/blob/master/phase0/fork-choice.md](https://github.com/ethereum/annotated-spec/blob/master/phase0/fork-choice.md)
+- [https://github.com/protolambda/lmd-ghost/tree/master](https://github.com/protolambda/lmd-ghost/tree/master)
