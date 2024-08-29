@@ -239,9 +239,9 @@ Proposer 同样存在 nothing at stake 行为，一个 Proposer 可能选择同�
 
 ---
 
-- [https://medium.com/coinmonks/run-your-own-ethereum-validator-part-1-pbft-casper-ffg-casper-cbc-and-lmd-ghost-e68e8461acf8](https://medium.com/coinmonks/run-your-own-ethereum-validator-part-1-pbft-casper-ffg-casper-cbc-and-lmd-ghost-e68e8461acf8)
-- [https://eth2book.info/capella/part2/consensus/lmd_ghost/#finding-the-head-block](https://eth2book.info/capella/part2/consensus/lmd_ghost/#finding-the-head-block)
-- [https://medium.com/coinmonks/an-in-depth-look-at-the-ghost-protocol-part-2-how-ghost-works-50e49edf7a52](https://medium.com/coinmonks/an-in-depth-look-at-the-ghost-protocol-part-2-how-ghost-works-50e49edf7a52)
-- [https://vitalik.eth.limo/general/2018/12/05/cbc_casper.html](https://vitalik.eth.limo/general/2018/12/05/cbc_casper.html)
-- [https://github.com/ethereum/annotated-spec/blob/master/phase0/fork-choice.md](https://github.com/ethereum/annotated-spec/blob/master/phase0/fork-choice.md)
-- [https://github.com/protolambda/lmd-ghost/tree/master](https://github.com/protolambda/lmd-ghost/tree/master)
+- [Run your own Ethereum Validator (Part 1)- PBFT, Casper FFG, Casper CBC and LMD GHOST](https://medium.com/coinmonks/run-your-own-ethereum-validator-part-1-pbft-casper-ffg-casper-cbc-and-lmd-ghost-e68e8461acf8)
+- [Upgrading Ethereum](https://eth2book.info/capella/part2/consensus/lmd_ghost/#finding-the-head-block)
+- [An in Depth Look at the GHOST Protocol: Part 2- How GHOST Works](https://medium.com/coinmonks/an-in-depth-look-at-the-ghost-protocol-part-2-how-ghost-works-50e49edf7a52)
+- [A CBC Casper Tutorial](https://vitalik.eth.limo/general/2018/12/05/cbc_casper.html)
+- [Ethereum 2.0 Phase 0 -- Beacon Chain Fork Choice](https://github.com/ethereum/annotated-spec/blob/master/phase0/fork-choice.md)
+- [Github:protolambda/lmd-ghost](https://github.com/protolambda/lmd-ghost/tree/master)
