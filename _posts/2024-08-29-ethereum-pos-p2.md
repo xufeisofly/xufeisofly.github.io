@@ -8,7 +8,7 @@ tags:
 - blockchain
 ---
 
-# 再看共识协议
+# 共识协议是个组合
 
 ---
 
@@ -32,7 +32,7 @@ tags:
 - **Root Block**: Root Block 是应用 Fork Choice Rule 时的开始区块，比如最近一次已经具有 Finality 的区块（在以太坊中即为 Checkpoint 区块）可以作为下一次的 Root Block，Genesis Block 是最初始的 Root Block。
 - **Weight**: 当一个 Proposer 被选中发布了一个新块之后，Validator Set 中的其他 Validator 需要对该块进行验证并投票，投票者的质押金表示了该投票的权重大小，投票权重的累加值即为该区块的权重大小。权重越大表示该区块所在的链得到了越多的认可。
 
-# 从 GHOST 开始
+# GHOST，为提高比特币吞吐量而生
 
 ---
 
@@ -59,7 +59,7 @@ GHOST 论文中提出了新的 Fork Choice Rule 协议来解决上述问题，Th
 
 一言蔽之，GHOST 分叉选择规则没有选择「最长的链」作为权威链，而是选择了「最重的子树」。这是因为任何一个父块的子块不仅仅是对于该父块的一个直接投票（认可），也是对于它所有祖先的间接投票（认可），因此整个子树都应该纳入权重。
 
-# 为什么不直接使用 GHOST
+# GHOST 这么好为什么不用
 
 ---
 
@@ -71,7 +71,7 @@ GHOST 协议在原生的 PoS 或 PoW 中作为 Fork Choice Rule 并没有问题�
 
 图中，绿色的分叉权重为 111，黄色为 96，根据 GHOST 规则绿色分叉会赢得胜利，然而黄色链的最后一个区块权重为 65，更接近成为 Checkpoint。为了解决这个问题，Vlad 和 Vitalik 分别提出了 LMD GHOST 协议和 IMD GHOST 协议，IMD GHOST 协议不是基于权重的加和而是基于权重的最大值进行分叉选择，这里对 IMD GHOST 不进行过多介绍，感兴趣可以看[这篇](https://ethresear.ch/t/immediate-message-driven-ghost-as-ffg-fork-choice-rule/2561?u=benjaminion) Vitalik 的文章。
 
-# LMD GHOST 协议
+# 以太坊的选择 —— LMD GHOST
 
 ---
 
@@ -227,7 +227,7 @@ LMD GHOST 会对 nothing at stake 行为进行惩罚。在 [Part1](https://xufei
 
 Proposer 同样存在 nothing at stake 行为，一个 Proposer 可能选择同时选择多条分支打包区块而不是只选择权威链，以避免日后自己选择的分支被回滚的风险。与 Validator 的 nothing at stake 惩罚不同，Proposer 的此类行为是通过第三方检测的，第三方发现后会提交一个证明，由之后的区块发布时中会打包，完成系统对 Proposer 的罚没。
 
-# 总结和思考
+# 总结
 
 ---
 
