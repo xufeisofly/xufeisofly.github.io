@@ -1,5 +1,5 @@
 ---
-title: 以太坊的 PoS - Part 1
+title: 以太坊的 PoS - Part1 共识协议总览
 layout: post
 post-image: "/assets/images/ethereum-pos-p1-img/head.jpg"
 tags:
