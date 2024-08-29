@@ -658,7 +658,7 @@ bool IsEmptyBlockAllowed(const ViewBlock& v_block) {
 ---
 
 Shardora 支持多分片多交易池，每个交易池单独进行共识出块，由于仅测量 HotStuff 共识逻辑，这里仅对单分片单交易池进行压测，目前仅对内网环境进行了测试。
-实测 300 节点约 1w+ TPS，600 节点 7k+ TPS。以下是 600 节点， 100 台 8 核 16 G 机器上单交易池的 TPS 日志，每台及其部署 6 个节点。
+实测 300 节点约 1w+ TPS，600 节点 8k+ TPS。以下是 600 节点， 100 台 8 核 16 G 机器上单交易池的 TPS 日志，每台及其部署 6 个节点。
 
 ```
 2024-07-18 16:28:01,063 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7297.78
@@ -683,6 +683,56 @@ Shardora 支持多分片多交易池，每个交易池单独进行共识出块�
 2024-07-18 16:28:41,968 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7751.00
 2024-07-18 16:28:44,014 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 6841.53
 2024-07-18 16:28:46,063 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7282.77
+```
+
+相同环境下，600 节点在 6k TPS 下的交易确认延迟（P50），单位 us。
+
+```
+2024-07-18 16:50:45,283 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2975774
+2024-07-18 16:50:45,287 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2467942
+2024-07-18 16:50:45,589 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2441572
+2024-07-18 16:50:47,445 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2404599
+2024-07-18 16:50:47,998 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2251632
+2024-07-18 16:50:48,755 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2073994
+2024-07-18 16:50:52,226 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2039650
+2024-07-18 16:50:52,228 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 3113829
+2024-07-18 16:50:52,231 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 3964973
+2024-07-18 16:50:53,488 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2676188
+2024-07-18 16:50:55,446 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2578819
+2024-07-18 16:50:55,449 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2905807
+2024-07-18 16:50:57,398 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2238231
+2024-07-18 16:50:57,402 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 3060853
+2024-07-18 16:51:00,457 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2726138
+2024-07-18 16:51:00,458 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2960151
+2024-07-18 16:51:00,460 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2811364
+2024-07-18 16:51:00,461 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2690229
+2024-07-18 16:51:01,837 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 1873591
+2024-07-18 16:51:02,893 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 1642817
+2024-07-18 16:51:02,894 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 1886792
+2024-07-18 16:51:05,711 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 1928026
+2024-07-18 16:51:05,715 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2975537
+2024-07-18 16:51:05,716 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2501125
+2024-07-18 16:51:05,718 [INFO] [tx_pool.cc][TxOver][449] tx latency p50: 2671262
+```
+
+相同环境下，视图超时时间的大致情况（即一个视图所需要的时间上限）。
+
+```
+2024-07-18 16:27:58,921 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 774 ms
+2024-07-18 16:27:59,482 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 777 ms
+2024-07-18 16:27:59,997 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 770 ms
+2024-07-18 16:28:00,509 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 764 ms
+2024-07-18 16:28:00,970 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 749 ms
+2024-07-18 16:28:01,517 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 755 ms
+2024-07-18 16:28:02,099 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 768 ms
+2024-07-18 16:28:02,634 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 769 ms
+2024-07-18 16:28:03,163 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 800 ms
+2024-07-18 16:28:03,745 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 813 ms
+2024-07-18 16:28:04,231 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 798 ms
+2024-07-18 16:28:04,794 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 805 ms
+2024-07-18 16:28:05,294 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 797 ms
+2024-07-18 16:28:05,826 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 797 ms
+2024-07-18 16:28:06,304 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 785 ms
 ```
 
 
