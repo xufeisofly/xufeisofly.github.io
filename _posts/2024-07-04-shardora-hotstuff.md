@@ -657,8 +657,9 @@ bool IsEmptyBlockAllowed(const ViewBlock& v_block) {
 # 5 性能测试
 ---
 
-Shardora 支持多分片多交易池，每个交易池单独进行共识出块，由于仅测量 HotStuff 共识逻辑，这里仅对单分片单交易池进行压测，目前仅对内网环境进行了测试。
-实测 300 节点约 1w+ TPS，600 节点 8k+ TPS。以下是 600 节点， 100 台 8 核 16 G 机器上单交易池的 TPS 日志，每台及其部署 6 个节点。
+Shardora 支持多分片多交易池，每个交易池单独进行共识出块，这里仅对单分片单交易池的 HotStuff 进行压测（不涉及多分片多交易池，不涉及跨分片交易），压测环境为内网。实测 300 节点可达 9k+ TPS，600 节点可达 8k+ TPS。
+
+以下是 600 节点，100 台 8 核 16 G 机器上单交易池的 TPS 日志，每台机器部署 6 个节点。
 
 ```
 2024-07-18 16:28:01,063 [WARN] [block_acceptor.h][CalculateTps][193] pool: 15, tps: 7297.78
@@ -734,7 +735,6 @@ Shardora 支持多分片多交易池，每个交易池单独进行共识出块�
 2024-07-18 16:28:05,826 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 797 ms
 2024-07-18 16:28:06,304 [INFO] [pacemaker.h][StartTimeoutTimer][93] pool: 15 duration is 785 ms
 ```
-
 
 # 6 后续改进
 ---
