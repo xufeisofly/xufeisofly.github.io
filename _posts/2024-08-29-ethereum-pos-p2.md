@@ -10,8 +10,6 @@ tags:
 
 本文是介绍以太坊 PoS 共识的第二部分。
 
-[以太坊的 PoS - Part1 共识协议总览](https://xufeisofly.github.io/blog/ethereum-pos-p1)
-
 # 共识协议是个组合
 
 ---
