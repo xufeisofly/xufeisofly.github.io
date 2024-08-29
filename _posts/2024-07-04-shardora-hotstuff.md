@@ -71,7 +71,7 @@ HotStuff 共识算法中涉及一些基本概念：
     
 当一个区块要发起共识时，Leader 会打包提案 Proposal 并广播，Replicas 收到后需要完成一系列校验，校验通过后签名并返回投票。Leader 收到 `2/3+1` 的投票后，即可产生一个群体证明 QC，此 QC 是该 Proposal 的第一个 QC，称为 PrepareQC。
     
-    PrepareQC 表示有足够多的节点认可该提案。因此，拥有 PrepareQC 的节点会无条件认可该提案的合法性。
+PrepareQC 表示有足够多的节点认可该提案。因此，拥有 PrepareQC 的节点会无条件认可该提案的合法性。
     
 **Precommit 阶段**
     
