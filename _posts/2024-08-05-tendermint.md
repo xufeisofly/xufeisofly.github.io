@@ -118,11 +118,11 @@ Replica 在广播了自己的 Prevote 投票后，开始收集其他 Replicas �
 
 Initialization:
   p                               /* 当前节点的 index */
-	h_p := 0                        /* 当前高度，或正在执行的共识实例 */
-	round_p := 0                    /* 当前轮次 */
-	step_p ∈ {propose, prevote, precommit}  /* 当前步骤，可以是 propose, prevote, precommit 之一 */
-	lockedValue_p := nil            /* 锁定的Block */
-	lockedRound_p := -1             /* 锁定的轮次 */
+  h_p := 0                        /* 当前高度，或正在执行的共识实例 */
+  round_p := 0                    /* 当前轮次 */
+  step_p ∈ {propose, prevote, precommit}  /* 当前步骤，可以是 propose, prevote, precommit 之一 */
+  lockedValue_p := nil            /* 锁定的Block */
+  lockedRound_p := -1             /* 锁定的轮次 */
 
 upon start do StartRound(0, h_genesis)     /* 启动时从第 0 轮开始 */
 
