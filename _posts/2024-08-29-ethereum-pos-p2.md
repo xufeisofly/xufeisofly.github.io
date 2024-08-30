@@ -198,11 +198,11 @@ LMD GHOST 具有 sticky 的性质：**节点一旦给某一个分支投票就倾
 ## 安全性分析
 
 安全性由 Finality 决定，以太坊使用了 Casper FFG 作为 Finality Rule，这是一个 BFT 共识机制，像 Tendermint 一样，我们使用两轮投票实现一个区块的 Finality。然而在没有 Casper 的情况下，LMD GHOST 的是否可以提供部分安全性，又是如何量化的？
-我们定义一个参数$q$，称为安全值，表示一条分支链得到 Validator 投票的权重与总 Validator 权重的比值。例如，5 个 Validator 中有 4 个 选择该分支，那么$q = 0.8$。我们设$q_b$为$b$这个块的安全值，那么从$b$块发布开始，随着其子树上面的投票权重越来越大，$q_b$也会越来越高。一般认为当安全值大于某个阈值，即$q_b > q_{min}$时，块$b$成为了一个真正「安全的」区块，无法被攻击回滚。如下图。
+我们定义一个参数 $q$，称为安全值，表示一条分支链得到 Validator 投票的权重与总 Validator 权重的比值。例如，5 个 Validator 中有 4 个 选择该分支，那么 $q = 0.8$。我们设 $q_b$ 为 $b$ 这个块的安全值，那么从$b$块发布开始，随着其子树上面的投票权重越来越大， $q_b$ 也会越来越高。一般认为当安全值大于某个阈值，即 $q_b > q_{min}$ 时，块 $b$ 成为了一个真正「安全的」区块，无法被攻击回滚。如下图。
 
 [![pAAY5rD.png](https://s21.ax1x.com/2024/08/29/pAAY5rD.png)](https://imgse.com/i/pAAY5rD)
 
-对于 LMD GHOST 来说，阈值$q_{min}$被定义为 $β + {1\above{1pt}2}$，其中 $β$ $β$表示恶意节点控制的 Stake 权重值，一般来说认为小于 ${1\above{1pt}3}$。也就是说当 Validator 全部是诚实节点时，只要块 $b$ 收获一半 Validator 的认可，该块就会被「最终确认」。
+对于 LMD GHOST 来说，阈值$q_{min}$被定义为 $β + {1\above{1pt}2}$，其中 $β$ 表示恶意节点控制的 Stake 权重值，一般来说认为小于 ${1\above{1pt}3}$。也就是说当 Validator 全部是诚实节点时，只要块 $b$ 收获一半 Validator 的认可，该块就会被「最终确认」。
 
 将 Finality Rule 和 Fork Choice Rule 解耦最大的好处就是以太坊在保证活性的前提下，即使区块的 Finality Rule 执行失败（如恶意节点数量 $>{1\above{1pt}3}$），也可以由客户端自己判断当前安全性。如果客户端觉得当前区块的 $q$ 值过小，可以选择继续等待，等待 Casper FFG 执行成功或者 $q$ 值达到了自己的要求。客户端使用自己规则来定义 Finality 标准，而不用在协议中设置一个阈值常量。
 
