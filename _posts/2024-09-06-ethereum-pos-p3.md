@@ -199,7 +199,7 @@ Accountable Safety 实现了 Economic Finality。
 > _容易误解的是，出现两个冲突的 Checkpoints 并不是针对 Casper FFG 的特有攻击，其他 BFT 共识比如 HotStuff 也会出现。只不过我们在使用传统 BFT 共识时一直默认满足拜占庭假设，因此不会分叉，也就不需要考虑两个完成提交的区块发生冲突时怎么办，应该如何选择，这就是为什么 BFT 不涉及 Fork Choice。但这是因为我们给了它一个很强的信任假设，而这个信任假设很可能是不切实际的。_
 >
 
-# Dynamic Validator Set
+# Dynamic Validator Set，加入与退出
 ---
 
 参与 Casper FFG 投票的 Validator Set 并不是一成不变的，Validator 应当随时可以加入或选择退出。但是动态的 Validator Set 会降低 Accountable Safety，因为可能被罚没的 Stake 会少于 $ 1\above{1pt}3 $。如果我们设 Economic Finality 为最多不会被罚没的 Stake 比重，那么对于一个纯静态的 Validator Set 为 $ 2\above{1pt}3 $，而动态的 Validator Set 为 $ {2\above{1pt}3}-ε $。
