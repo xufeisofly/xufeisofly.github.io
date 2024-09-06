@@ -106,7 +106,7 @@ Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 
 正如 BFT 的 Locked 状态可用于验证新提案是否冲突，完成了 Justification 的 Checkpoints 也可以用于检测新的提案，检测的规则称为 Casper Commandments，这来源于 Vitalik 研究 BFT 共识后总结出来的两个 Slashing Conditions（惩罚条件）。
 
-# 提案校验和两个惩罚条件
+# 两个惩罚条件
 ---
 
 如果两个 Checkpoint 在不同的分支上，就说明两个 Checkpoint 是冲突的，很显然，一个提案中 Source Checkpoint 和 Target Checkpoint 不能是冲突的，这是提案的基本验证规则，如下图中的 $ B\to C $。
