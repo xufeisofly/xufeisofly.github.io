@@ -72,7 +72,7 @@ struct Checkpoint:
 
 Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 
-+ v 代表消息类型，在非 Pipeline 的消息中，包括 `Propose` 消息和 `Commit` 消息。
++ v 代表消息类型，在非 Pipeline 的消息中，包括 `Prepare` 消息和 `Commit` 消息。
 + s 代表 Source Checkpoint，即来源 Checkpoint。
 + t 代表 Target Checkpoint，即目标 Checkpoint。
 + h(Checkpoint) 表示该 Checkpoint 的高度，这个高度并非 Block Height 而是 Checkpoint Height，对于以太坊来说就是所在的 Epoch。
