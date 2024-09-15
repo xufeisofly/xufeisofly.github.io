@@ -1,7 +1,7 @@
 ---
-title: 从 HotStuff 回看 Tendermint —— 实现
+title: 从 HotStuff 回看 Tendermint — 实现
 layout: post
-post-image: "/assets/images/tendermint-img/head.jpg"
+post-image: "/assets/images/tendermint2-img/head.jpg"
 tags:
 - tendermint
 - consensus
