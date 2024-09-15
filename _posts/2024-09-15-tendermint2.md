@@ -1,6 +1,6 @@
 ---
 title: 从 HotStuff 回看 Tendermint — 实现
-layout: post
+layout: post-with-content
 post-image: "/assets/images/tendermint2-img/head.jpg"
 tags:
 - tendermint
