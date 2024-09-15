@@ -154,14 +154,14 @@ func (cs *State) defaultDoPrevote(height int64, round int32) {
 ```go
 // 接受 precommit 投票
 func (cs *State) addVote(vote *types.Vote, peerID p2p.ID) (added bool, err error) {
-    // ...
+	// ...
     
-    // 如果收到了 +2/3 的 Precommit 投票
+	// 如果收到了 +2/3 的 Precommit 投票
     blockID, ok := precommits.TwoThirdsMajority()
     if ok {
-        // ...
+		// ...
 		if len(blockID.Hash) != 0 { 
-            // 如果 +2/3 是同意票，则进入 Commit 阶段，提交提案
+			// 如果 +2/3 是同意票，则进入 Commit 阶段，提交提案
 			cs.enterCommit(height, vote.Round)
 			// 如果收集到所有的 precommits，直接开启 NewHeight
 			if cs.config.SkipTimeoutCommit && precommits.HasAll() {
@@ -318,7 +318,7 @@ func (cs *State) newStep() {
 	if err := cs.wal.Write(rs); err != nil {
 		cs.Logger.Error("failed writing to WAL", "err", err)
 	}
-    // ...
+	// ...
 }
 ```
 
@@ -336,7 +336,7 @@ type PartSet struct {
 	parts         []*Part
 	partsBitArray *bits.BitArray
 	count         uint32
-    // 总大小，用于保证不超过上限
+	// 总大小，用于保证不超过上限
 	byteSize int64
 }
 
@@ -367,11 +367,11 @@ func (state State) MakeBlock(...) (*types.Block, *types.PartSet) {
 ```go
 // 发起一个 Proposal，广播给所有的 Validator
 func (cs *State) defaultDecideProposal(height int64, round int32) {
-    // ...
-    // 新建 Proposal
+	// ...
+	// 新建 Proposal
 	proposal := types.NewProposal(height, round, cs.ValidRound, propBlockID)
 
-    // ...
+	// ...
 	// 广播 Proposal 和 Block Parts
 	cs.sendInternalMessage(msgInfo{&ProposalMessage{proposal}, ""})
 
@@ -390,13 +390,12 @@ func (cs *State) handleMsg(mi msgInfo) {
     // ...
     switch msg := msg.(type) {
 	case *ProposalMessage: // Proposal 类型消息
-        // 记录下 Proposal，主要是其中的 Block Hash
+		// 记录下 Proposal，主要是其中的 Block Hash
 		err = cs.setProposal(msg.Proposal) 
 	case *BlockPartMessage: // Block Part 消息
-        // 使用 Merkle Proof 验证后加入 PartSet
+		// 使用 Merkle Proof 验证后加入 PartSet
 		added, err = cs.AddPart(msg.Part)
-
-        // 当 Proposal Block Parts 完整后，再处理 Proposal
+		// 当 Proposal Block Parts 完整后，再处理 Proposal
 		if added && cs.ProposalBlockParts.IsComplete() {
 			cs.handleCompleteProposal(msg.Height)
     	}
