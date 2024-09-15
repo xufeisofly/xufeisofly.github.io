@@ -78,27 +78,26 @@ Tendermint 的状态流转过程基本上都是基于下面这张官方图，具
 ```go
 // 执行 Commit
 func (cs *State) finalizeCommit(height int64) {
-    // ...
-    // 此时已进入 NewHeight 阶段
-    
-    // 计算 NewHeight Start 时间：StartTime = timeoutCommit + LastBlockTime
+	// ...
+	// 此时已进入 NewHeight 阶段
+	// 计算 NewHeight Start 时间：StartTime = timeoutCommit + LastBlockTime
 	cs.StartTime = cs.config.Commit(cs.CommitTime)
-    // 需要等待 timeoutCommit 时间才进入 
-    sleepDuration := rs.StartTime.Sub(tmtime.Now())
+	// 需要等待 timeoutCommit 时间才进入 
+	sleepDuration := rs.StartTime.Sub(tmtime.Now())
 	cs.scheduleTimeout(sleepDuration, rs.Height, 0, cstypes.RoundStepNewHeight)
-    // ...
+	// ...
 }
 
 // 接收 Timeout 消息
 func (cs *State) handleTimeout(ti timeoutInfo, rs cstypes.RoundState) {
-    // ...
+	// ...
 	switch ti.Step {
 	case cstypes.RoundStepNewHeight:
-        // 进入 NewRound 阶段
+		// 进入 NewRound 阶段
 		cs.enterNewRound(ti.Height, 0)
-    // ...
+	// ...
     }
-    // ...
+	// ...
 }
 ```
 
@@ -125,14 +124,14 @@ func (cs *State) defaultDoPrevote(height int64, round int32) {
 	logger := cs.Logger.With("height", height, "round", round)
 
 	// 已经有 Locked Block，则会直接为 Locked Block 投票，若此时新提案与 Locked Block 不同，
-    // 则相当于对新提案投了反对票。
+	// 则相当于对新提案投了反对票。
 	if cs.LockedBlock != nil {
-        // 为 LockedBlock 签名投票
+		// 为 LockedBlock 签名投票
 		cs.signAddVote(tmproto.PrevoteType, cs.LockedBlock.Hash(), cs.LockedBlockParts.Header())
 		return
 	}
 
-    // ...
+	// ...
 }
 ```
 
@@ -155,10 +154,9 @@ func (cs *State) defaultDoPrevote(height int64, round int32) {
 // 接受 precommit 投票
 func (cs *State) addVote(vote *types.Vote, peerID p2p.ID) (added bool, err error) {
 	// ...
-    
 	// 如果收到了 +2/3 的 Precommit 投票
-    blockID, ok := precommits.TwoThirdsMajority()
-    if ok {
+	blockID, ok := precommits.TwoThirdsMajority()
+	if ok {
 		// ...
 		if len(blockID.Hash) != 0 { 
 			// 如果 +2/3 是同意票，则进入 Commit 阶段，提交提案
@@ -174,7 +172,7 @@ func (cs *State) addVote(vote *types.Vote, peerID p2p.ID) (added bool, err error
 		}
 	}
 
-    // ...
+	// ...
 }
 ```
 
@@ -287,17 +285,15 @@ Tendermint 在上述共识流程的执行过程中，执行了额外的同步操
 
 ```go
 func (conR *Reactor) gossipVotesRoutine(peer p2p.Peer, ps *PeerState) {
-    // ...
-    for {
-        // ...
-        // 如果节点落后当前节点 1 个 Height，则随机发送本地保存的其他节点的一份 Precommit 投票
-        // 帮助其尽快 Commit。该投票是 EventVote 同步而来的。
-        if prs.Height != 0 && rs.Height == prs.Height+1 {
-			if ps.PickSendVote(rs.LastCommit) {
-                // ...
-			}
+	// ...
+	for {
+		// ...
+		// 如果节点落后当前节点 1 个 Height，则随机发送本地保存的其他节点的一份 Precommit 投票
+		// 帮助其尽快 Commit。该投票是 EventVote 同步而来的。
+		if prs.Height != 0 && rs.Height == prs.Height+1 {
+			ps.PickSendVote(rs.LastCommit)
 		}
-    }
+	}
 }
 ```
 
