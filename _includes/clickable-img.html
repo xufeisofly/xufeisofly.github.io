@@ -1,0 +1,29 @@
+<div id="image-cover-modal" class="image-cover-modal">
+  <img id="image-cover-image" class="image-cover-modal-content">
+  <div id="image-cover-caption"></div>
+</div>
+<script>
+  var images = document.getElementsByTagName('img');  
+  
+  var modal = document.getElementById('image-cover-modal');
+  var modalImg = document.getElementById("image-cover-image");
+  var captionText = document.getElementById("image-cover-caption");
+  
+  modal.onclick = function() {
+      this.classList.remove("model-shown");
+  };
+
+  for (let i = 0; i < images.length; i++) {
+      images[i].onclick = function() {
+          console.log("hahah");
+		  modal.classList.add("model-shown");
+		  modalImg.src = this.src;
+		  captionText.innerHTML = this.alt;
+      };
+  }
+  
+</script>
+
+
+
+

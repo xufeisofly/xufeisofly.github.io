@@ -67,6 +67,7 @@ layout: compress
     </div>
   </section>
   {% include footer.html %}
+  {% include clickable-img.html %}
 </body>
 <script>
   /**
@@ -84,7 +85,7 @@ layout: compress
     s.src = 'https://{{site.disqus-shortname}}.disqus.com/embed.js';
     s.setAttribute('data-timestamp', +new Date());
     (d.head || d.body).appendChild(s);
-  })();
+  })();  
 </script>
 
 </html>
