@@ -52,13 +52,13 @@ Tendermint 的状态流转过程基本上都是基于下面这张官方图，具
 + `NewRound` -> `Propose`：从 `NewRound` 状态到 `Propose` 状态有两种方式，一种是当交易池中的 `Txs` 准备好时进入 `Propose` 阶段。另一种是开启 `NewRoundTimeout` 计时，倒计时结束后 Proposer 会尝试打包一个新提案，若 `Txs` 还没有准备好则提案就会是一个空的区块。
 + `Propose` -> `Prevote`：进入 `Propose` 阶段后，Proposer 会将打包好的提案广播给其他 Validators，同时开始计时 `ProposeTimeout`，Validator 会在收到 `Proposal` 之后，或者是 `ProposeTimeout` 结束时刻进入 `Prevote` 阶段。
 + `Prevote` -> `Precommit`：进入 `Prevote` 阶段后 Validator 会对 `Proposal` 进行验证并投票`Prevote for *`，投票有可能是 Yes 投票（`Prevote for Block`）或者是 No 投票（`Prevote for Nil`）。Validator 在投票后开始收集其他投票，并在收集到 +2/3 任意投票后开启 `PrevoteTimeout` 计时。接下来有三种情况会使得节点进入 `Precommit` 阶段：
-    - 收集到 +2/3 的 Block 投票：会导致后续 `Precommit` 投同意票。
-    - 收集到 +2/3 的 nil 投票：会导致后续 `Precommit` 投反对票。
-    - `PrevoteTimeout` 到时：会导致后续 `Precommit` 投反对票。
+    a. 收集到 +2/3 的 Block 投票：会导致后续 `Precommit` 投同意票。
+    b. 收集到 +2/3 的 nil 投票：会导致后续 `Precommit` 投反对票。
+    c. `PrevoteTimeout` 到时：会导致后续 `Precommit` 投反对票。
 + `Precommit` -> `NewHeight`：进入 `Precommit` 阶段后 Validator 会根据 `Prevote` 收到的投票情况发起 `Precommit` 投票，并收集其他节点发来的 `Precommit` 投票。当收集到 +2/3 的任意投票后开启 `PrecommitTimeout` 计时，之后继续收集投票，并分为三种情况：
-    - 收集到 +2/3 的同意票：`Commit` 本提案，并进入 `NewHeight` 阶段，本次提案共识成功。
-    - `PrecommitTimeout` 到时：本 `Round` 未共识成功，开启一个 `NewRound`，`Height` 不变。
-    - 收集到了所有 Validator 的投票：开启一个 `NewRound`，`Height` 不变。
+    a. 收集到 +2/3 的同意票：`Commit` 本提案，并进入 `NewHeight` 阶段，本次提案共识成功。
+    b. `PrecommitTimeout` 到时：本 `Round` 未共识成功，开启一个 `NewRound`，`Height` 不变。
+    c. 收集到了所有 Validator 的投票：开启一个 `NewRound`，`Height` 不变。
 
 代码流程图和官方提供的流程图相比，展现内容上有一些区别：
 
