@@ -56,9 +56,9 @@ Tendermint 的状态流转过程基本上都是基于下面这张官方图，具
     b. 收集到 +2/3 的 nil 投票：会导致后续 `Precommit` 投反对票。
     c. `PrevoteTimeout` 到时：会导致后续 `Precommit` 投反对票。
 + `Precommit` -> `NewHeight`：进入 `Precommit` 阶段后 Validator 会根据 `Prevote` 收到的投票情况发起 `Precommit` 投票，并收集其他节点发来的 `Precommit` 投票。当收集到 +2/3 的任意投票后开启 `PrecommitTimeout` 计时，之后继续收集投票，并分为三种情况：
-    a. 收集到 +2/3 的同意票：`Commit` 本提案，并进入 `NewHeight` 阶段，本次提案共识成功。
-    b. `PrecommitTimeout` 到时：本 `Round` 未共识成功，开启一个 `NewRound`，`Height` 不变。
-    c. 收集到了所有 Validator 的投票：开启一个 `NewRound`，`Height` 不变。
+    - 收集到 +2/3 的同意票：`Commit` 本提案，并进入 `NewHeight` 阶段，本次提案共识成功。
+    - `PrecommitTimeout` 到时：本 `Round` 未共识成功，开启一个 `NewRound`，`Height` 不变。
+    - 收集到了所有 Validator 的投票：开启一个 `NewRound`，`Height` 不变。
 
 代码流程图和官方提供的流程图相比，展现内容上有一些区别：
 

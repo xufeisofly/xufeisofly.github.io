@@ -34,10 +34,19 @@ body {
   color: $body-text-color;
 }
 
-li {
-  list-style: circle;
+ul li {
+  list-style: disc;
   list-style-position: inside;
+  ul {
+	  margin-left: 1em;
+  }
+  ul li {
+    list-style: circle;
+    list-style-position: inside;
+  }
 }
+
+
 
 #skip-to-content {
   height: 1px;
@@ -407,7 +416,7 @@ a {
 }
 
 .toc ul ul {
-	list-style: none !important;
+	list-style: square !important;
     padding-left: 20px; /* 给嵌套的列表添加缩进 */
 }
 
