@@ -11,7 +11,9 @@ layout: compress
   {% include navbar.html %}
 
   {% assign featured_posts = site.posts | where: "featured", true %}
-  {% assign normal_posts = site.posts | where_exp: "post", "post.featured != true" %}  
+  {% assign normal_posts = site.posts | where_exp: "post", "post.featured != true" %}
+  {% assign latest_normal_post = normal_posts | slice: 0, 1 %}
+  {% assign remaining_normal_posts = normal_posts | slice: 1, normal_posts.size %}  
 
     <section class="hero is-fullheight" id="blog">
         <div class="hero-body">
@@ -23,8 +25,11 @@ layout: compress
         <!--Blog Cards Section-->
         {% for post in featured_posts %}
             {% include blog-card-featured.html %}
-        {% endfor %}		
-        {% for post in normal_posts %}
+        {% endfor %}
+		{% for post in latest_normal_post %}
+            {% include blog-card-latest.html %}
+        {% endfor %}
+        {% for post in remaining_normal_posts %}
             {% include blog-card.html %}
         {% endfor %}
         </div>

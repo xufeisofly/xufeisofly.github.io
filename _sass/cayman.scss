@@ -485,6 +485,10 @@ a {
 	position: absolute; bottom: 0; width: 100%; right: 0px; color: #ff6b6b;
 }
 
+.latest {
+	position: absolute; bottom: 0; width: 100%; right: 0px; color: #4caf50;
+}
+
 .noHover{
     pointer-events: none;
 	text-decoration: none;
@@ -496,5 +500,12 @@ a {
 		background-color: #ff6b6b;
 		color: #fff;
 		margin: auto;
-    } 
+    }
+
+    .latest {
+        position: relative; /* 改为相对定位 */
+		background-color: #4caf50;
+		color: #fff;
+		margin: auto;
+    }	
 }
