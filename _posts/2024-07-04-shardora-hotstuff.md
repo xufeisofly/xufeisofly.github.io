@@ -9,7 +9,7 @@ tags:
 - blockchain
 ---
 
-> *本文内容源于 [Shardora 区块链](https://github.com/tenondvpn/shardora)对 HotStuff 的工程实现。Shardora 是一条基于多分片扩容、多交易池并发共识的高性能区块链，使用改进的 PoS + HotStuff 来保证共识的性能与安全性。*
+> *本文内容源于 [Shardora 区块链](https://github.com/tenondvpn/shardora)对 HotStuff 的工程实现，相关代码见[链接](https://github.com/tenondvpn/shardora/tree/V0.5.4/src/consensus/hotstuff)。Shardora 是一条基于多分片扩容、多交易池并发共识的高性能区块链，使用改进的 PoS + HotStuff 来保证共识的性能与安全性。*
 
 # 1 共识算法概述
 ---
