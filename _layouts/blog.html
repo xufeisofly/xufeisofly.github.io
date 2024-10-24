@@ -8,7 +8,10 @@ layout: compress
 {% include head.html %}
 
 <body>
-    {% include navbar.html %}
+  {% include navbar.html %}
+
+  {% assign featured_posts = site.posts | where: "featured", true %}
+  {% assign normal_posts = site.posts | where_exp: "post", "post.featured != true" %}  
 
     <section class="hero is-fullheight" id="blog">
         <div class="hero-body">
@@ -18,7 +21,10 @@ layout: compress
         </div>
         <div id="results-container"></div>
         <!--Blog Cards Section-->
-        {% for post in site.posts %}
+        {% for post in featured_posts %}
+            {% include blog-card-featured.html %}
+        {% endfor %}		
+        {% for post in normal_posts %}
             {% include blog-card.html %}
         {% endfor %}
         </div>

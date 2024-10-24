@@ -2,6 +2,7 @@
 title: HotStuff 工程设计与实现
 layout: post-with-content
 post-image: "/assets/images/shardora-hotstuff-img/head.jpg"
+featured: true
 tags:
 - hotstuff
 - consensus

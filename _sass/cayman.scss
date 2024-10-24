@@ -478,5 +478,23 @@ a {
     .image-cover-modal-content {
         max-width: 100%;
         max-height: 100%;
-    }
+    }	
+}
+
+.featured {
+	position: absolute; bottom: 0; width: 100%; right: 0px; color: #ff6b6b;
+}
+
+.noHover{
+    pointer-events: none;
+	text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .featured {
+        position: relative; /* 改为相对定位 */
+		background-color: #ff6b6b;
+		color: #fff;
+		margin: auto;
+    } 
 }
