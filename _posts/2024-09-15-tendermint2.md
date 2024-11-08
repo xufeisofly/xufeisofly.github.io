@@ -103,7 +103,7 @@ func (cs *State) handleTimeout(ti timeoutInfo, rs cstypes.RoundState) {
 
 上述代码能看到 `NewHeight` 阶段与 `NewRound` 阶段之间存在的 `CommitTimeout` 等待，这是为了更多的收集剩余的 `Precommit` 投票。如果没有收集到 +2/3 `Precommit for Block`，即 Unhappy Path 中，节点也会等待 `PrecommitTimeout` 时间才会进入 `NewRound` 阶段，同样是为了收集更多的 `Precommit` 投票。
 
-那么为什么要尽量收集剩余的 `Precommit` 投票？这与 Tendermint 的视图切换过程相关。下图为 Tendermint 的视图切换过程：
+实际上，这部分「多余的」等待并没有在 Tendermint 论文中提现，当人们按照论文实现了 Tendermint 之后发现会出现死锁的情况。那么为什么要尽量收集剩余的 `Precommit` 投票？这与 Tendermint 的视图切换过程相关。下图为 Tendermint 的视图切换过程：
 
 ![image.png](/assets/images/tendermint2-img/image4.png)
 
