@@ -745,6 +745,7 @@ Shardora HotStuff 采用了原生的 Chained HotStuff，这将带来一些问题
 - 使用 BLS 聚合签名替换阈值签名，去除 DKG，简化代码。
 - 使用 Fast HotStuff，应对分叉攻击，并缩短交易确认时延。
 - 接入 PoS，使用 Stake 作为投票权重，进一步提升安全性。
+- 增加双签举证和 Slashing 机制。
 
 
 # 7 参考资料
