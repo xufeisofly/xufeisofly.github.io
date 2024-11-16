@@ -1,6 +1,6 @@
 ---
-title: 从 HotStuff 回看 Tendermint
-layout: post
+title: 从 HotStuff 回看 Tendermint (一)
+layout: post-with-content
 post-image: "/assets/images/tendermint-img/head.jpg"
 tags:
 - tendermint
@@ -8,6 +8,11 @@ tags:
 - consensus
 - blockchain
 ---
+
+本系列是对 Tendermint 的学习和理解，同时涉及理论和工程实现，并加入个人思考和总结。如题系列共有三篇文章，此为第一篇。
+
++ [从 HotStuff 回看 Tendermint (二)](https://xufeisofly.github.io/blog/tendermint2)
++ [从 HotStuff 回看 Tendermint (三)](https://xufeisofly.github.io/blog/tendermint3)
 
 在生产环境中，Tendermint 是一个比 HotStuff 出现更早、更加成熟的方案，最有名的是 Cosmos 中的应用。我们在 Shardora 实现了 HotStuff 作为共识层之后，学习并参考了 Tendermint，特别是参考其对接 PoS 的部分，以进一步完善 Shardora 共识的效率和安全性。此外，Tendermint 中涉及很多 BFT 的基本概念，是 BFT 类共识发展历史的一个重要节点，了解 Tendermint 能让我们更加熟悉 BFT 类共识的底层原理，更能了解 BFT 类共识普遍面对的问题，以及不同共识算法对应的解决方案。
 
