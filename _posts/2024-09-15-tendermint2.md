@@ -10,7 +10,7 @@ tags:
 
 本篇文章是阅读了 Tendermint Core 源代码之后，对 Tendermint 理解更新。包括共识协议的流程设计和实现细节。
 
-此外，建议读者阅读[这篇论文](https://tendermint.com/static/docs/tendermint.pdf)，它涉及了 Tendermint Core 共识部分的具体实现，而原始的 [Tendermint 论文](https://arxiv.org/abs/1807.04938)更多是理论上的。读者还可以阅读我[上一篇](https://xufeisofly.github.io/blog/tendermint)关于 Tendermint 的文章，两篇文章无论先后，希望能有所帮助。
+此外，建议读者阅读[这篇论文](https://tendermint.com/static/docs/tendermint.pdf)，它涉及了 Tendermint Core 共识部分的具体实现，而原始的 [Tendermint 论文](https://arxiv.org/abs/1807.04938)更多是理论上的。
 
 本系列共有三篇文章，此为第二篇。
 
