@@ -1,5 +1,5 @@
 ---
-title: 从 HotStuff 回看 Tendermint — 理论
+title: 从 HotStuff 回看 Tendermint
 layout: post
 post-image: "/assets/images/tendermint-img/head.jpg"
 tags:
