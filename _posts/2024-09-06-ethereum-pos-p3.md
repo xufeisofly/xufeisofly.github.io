@@ -137,7 +137,7 @@ Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 ---
 
 ## Accountable Safety
-**Accountable Safety: **当满足拜占庭假设的前提下，不可能存在两个冲突的 Checkpoint 被 Finalized。即使没有满足拜占庭假设，也不能在不违反 Slashing Conditions 的情况下 Finalize 两个冲突的 Checkpoint。
+**Accountable Safety:** 当满足拜占庭假设的前提下，不可能存在两个冲突的 Checkpoint 被 Finalized。即使没有满足拜占庭假设，也不能在不违反 Slashing Conditions 的情况下 Finalize 两个冲突的 Checkpoint。
 
 > _与论文中不同，我在这里特别注明了要满足拜占庭假设。因为 Casper FFG 的安全性是分成满足和不满足拜占庭假设两种情况的。_
 >
