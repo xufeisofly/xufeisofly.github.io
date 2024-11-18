@@ -751,7 +751,7 @@ Shardora HotStuff 采用了原生的 Chained HotStuff，这将带来一些问题
 # 7 参考资料
 ---
 
-Shardora 目前仍处于开发阶段，你可以前往[Github 项目地址](https://github.com/tenondvpn/shardora)查看并测试 [HotStuff 代码](https://github.com/tenondvpn/shardora/tree/main/src/consensus/hotstuff)。
+Shardora 目前仍处于开发阶段，你可以前往[Github 项目地址](https://github.com/tenondvpn/shardora)查看并测试 [HotStuff 代码](https://github.com/tenondvpn/shardora/tree/V0.5.4/src/consensus/hotstuff)。
 
 其他参考内容如下。
 
