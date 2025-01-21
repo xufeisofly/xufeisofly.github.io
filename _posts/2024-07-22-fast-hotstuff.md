@@ -1,6 +1,6 @@
 ---
 title: Fast HotStuff 理解和思考
-layout: post
+layout: post-with-content
 post-image: "/assets/images/fast-hotstuff-img/head.jpg"
 tags:
 - hotstuff
@@ -56,6 +56,29 @@ FHS 论文中证明了，只要满足「新提案永远打包 HighQC」这个事
 
 
 好在 FHS 优化了验证逻辑，只需要验证两个 QC，在节点数量可控的情况下，实测计算耗时没有太大影响。下文对聚合签名进行介绍。
+
+# Unhappy Path 下为什么需要 AggQC
+---
+
+上文所述，AggQC 是 2/3+ 节点各自 HighQC 的聚合，从中我们可以获取到系统目前公认的最高的 HighQC（至少是 2/3+ 节点公认的）。当某视图共识异常而导致视图切换时，所有节点的状态可能参差不齐，新 Proposer 的状态也可能不是最新的，这就需要提供一个全网认可的、最新的状态，并基于此状态继续进行共识。AggQC 在系统因视图切换而发生状态错乱时，能够从中获取之前最高的 HighQC 及其证明，从而保证所有的 Proposal 都是基于最高的区块向后延伸的。
+	
+那么是否可以不使用 AggQC，毕竟签名与验签十分耗费性能，会拉低吞吐量，或者说不使用 AggQC 是否可以同样保证 Proposer 发布的提案打包的是最高的 HighQC？结论是不可以，这不仅会导致共识丧失活性。
+	
+举个例子。下图中，初始状态下 4 个节点的 HighQC 均为 QC3，在 View4 的共识中节点 4 成功生成 QC4，然而广播 QC4 时只有节点 3、4 接收到因而触发超时视图切换。此时节点 1、2 的 HighQC = QC3，节点 3、4 的 HighQC = QC4。
+	
+![Untitled](/assets/images/fast-hotstuff-img/image20.png)
+
+在视图切换时，新 Proposer 节点 1 收集到节点 1、2、4 的 HighQC 均为 QC3（其中节点 4 为拜占庭节点）。此时我们不生成 AggQC，让节点 1 打包自己认为的 HighQC 即 QC3 并广播提案（视图 View 4'），会发生什么？
+
+结果便是：节点 1、2 投同意票，节点 3 由于发现 QC3 小于自己的 QC4 而拒绝该提案，节点 4 作为拜占庭节点投同意票，新 Proposer 为 View 4' 生成 QC4'。不幸的是，下一轮的 Proposer 恰好是拜占庭节点 4，那么此时节点 4 同时拥有 QC4 与 QC4'，它可以选择基于两者任何一个分支发布新的提案并且都会获得通过（如果它打包 QC4 会获得所有节点的同意，如果它打包 QC4' 会获得除了节点 3 外其余节点的同意）。
+
+![Untitled](/assets/images/fast-hotstuff-img/image21.png)
+
+此外它还可以选择将 QC4' 仅广播给节点 1、2，自己则为节点 3 站台 QC4，这样系统便无法进行视图切换而丧失活性。如下图。
+
+![Untitled](/assets/images/fast-hotstuff-img/image22.png)
+
+出现这种情况的直接原因是，不携带 AggQC 导致同时出现 QC4 与 QC4'，并且两者都是合法的，最终可能造成状态分叉。而使用 AggQC(HighQC=QC3) 的意义便在于告知所有节点 QC4 是非法的，从而确定 QC4' 这唯一一个合法分支。
 
 # FHS 使用聚合签名
 ---
