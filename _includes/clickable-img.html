@@ -9,18 +9,79 @@
   var modalImg = document.getElementById("image-cover-image");
   var captionText = document.getElementById("image-cover-caption");
   
+  // 初始缩放比例
+  var scale = 1;
+  
+  // 记录捏合开始时两个手指的初始距离与当前缩放比例
+  var initialDistance = null;
+  var initialScale = 1;
+  
+  // 点击 modal 本身关闭图片，并重置缩放
   modal.onclick = function() {
       this.classList.remove("model-shown");
+      scale = 1;
+      modalImg.style.transform = "scale(" + scale + ")";
   };
 
+  // 当点击图片时打开 modal，并显示对应图片和说明
   for (let i = 0; i < images.length; i++) {
-      images[i].onclick = function() {
-		  modal.classList.add("model-shown");
-		  modalImg.src = this.src;
-		  captionText.innerHTML = this.alt;
+      images[i].onclick = function(e) {
+          modal.classList.add("model-shown");
+          modalImg.src = this.src;
+          captionText.innerHTML = this.alt;
+          scale = 1;
+          modalImg.style.transform = "scale(" + scale + ")";
+          // 阻止事件冒泡，避免触发 modal 的点击关闭事件
+          e.stopPropagation();
       };
   }
   
+  // 鼠标滚轮缩放：支持桌面浏览器
+  modalImg.addEventListener("wheel", function(e) {
+      e.preventDefault(); // 阻止页面滚动
+      if (e.deltaY < 0) {
+          // 向上滚动，放大图片
+          scale += 0.1;
+      } else {
+          // 向下滚动，缩小图片，最低保持 0.1
+          scale = Math.max(0.1, scale - 0.1);
+      }
+      modalImg.style.transform = "scale(" + scale + ")";
+  });
+  
+  // 触摸事件：支持触屏设备捏合缩放
+  modalImg.addEventListener("touchstart", function(e) {
+      if (e.touches.length === 2) {
+          // 计算两个触摸点之间的距离
+          initialDistance = Math.hypot(
+              e.touches[0].pageX - e.touches[1].pageX,
+              e.touches[0].pageY - e.touches[1].pageY
+          );
+          initialScale = scale; // 记录当前的缩放比例
+      }
+  });
+  
+  modalImg.addEventListener("touchmove", function(e) {
+      if (e.touches.length === 2 && initialDistance) {
+          // 计算当前两个触摸点之间的距离
+          var currentDistance = Math.hypot(
+              e.touches[0].pageX - e.touches[1].pageX,
+              e.touches[0].pageY - e.touches[1].pageY
+          );
+          // 根据距离比例调整缩放比例
+          var newScale = initialScale * (currentDistance / initialDistance);
+          scale = Math.max(0.1, newScale);
+          modalImg.style.transform = "scale(" + scale + ")";
+          e.preventDefault(); // 防止触摸导致页面滚动
+      }
+  });
+  
+  modalImg.addEventListener("touchend", function(e) {
+      // 当手指离开时，如果不再有两个触摸点，重置 initialDistance
+      if (e.touches.length < 2) {
+          initialDistance = null;
+      }
+  });
 </script>
 
 
