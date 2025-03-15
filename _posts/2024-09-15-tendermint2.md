@@ -1,7 +1,7 @@
 ---
 title: 从 HotStuff 回看 Tendermint (二)
 layout: post-with-content
-post-image: "/assets/images/tendermint2-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/tendermint2/head.2yyidouu8k.jpg"
 tags:
 - tendermint
 - consensus
@@ -49,11 +49,11 @@ tags:
 
 Tendermint 的状态流转过程基本上都是基于下面这张官方图，具体在[上一篇文章](https://xufeisofly.github.io/blog/tendermint)中有详细介绍，这里就不再重复了。
 
-![image.png](/assets/images/tendermint2-img/image1.png)
+![image1](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image1.8vn2kpbd79.png)
 
 通过源代码总结出来了当前版本 Tendermint 状态机示意图如下，我认为描述更为全面。
 
-![image.png](/assets/images/tendermint2-img/image2.png)
+![image2](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image2.4jo9d5s1p4.png)
 
 上图中，绿色和红色箭头分别代表 Happy Path（正常完成共识）和 Unhappy Path（共识失败导致视图切换），+2/3 Block、+2/3 Nil 代表对应的阶段的同意票和反对票，+2/3 Any 表示任意投票。图中呈现出了以下几种阶段流转:
 
@@ -75,7 +75,7 @@ Tendermint 的状态流转过程基本上都是基于下面这张官方图，具
 2. Tendermint 从 `NewHeight` 到 `NewRound` 期间要视图收集所有 Validator 的 `Precommit` 投票，原图中并没有体现这一点，而这是视图切换的核心逻辑。
 3. 原图中没有体现出各个阶段的 `Timeout`，但这是部分同步网络下 Tendermint 能够实现的重要基础。这里我们去掉代码流程图中的多余逻辑只关注不同阶段流转时的超时，如下图所示。
 
-![image.png](/assets/images/tendermint2-img/image3.png)
+![image3](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image3.6bh882bel5.png)
 
 如果一个 `Round` 共识失败，那么下一个 `Round` 中发生超时的 `Timeout` 会比之前的 `Round` 增加一个固定的时间，来保证 Tendermint 共识协议在部分同步网络中的活性，避免卡死。
 
@@ -114,7 +114,7 @@ func (cs *State) handleTimeout(ti timeoutInfo, rs cstypes.RoundState) {
 
 实际上，这部分「多余的」等待并没有在 Tendermint 论文中提现，当人们按照论文实现了 Tendermint 之后发现会出现死锁的情况。那么为什么要尽量收集剩余的 `Precommit` 投票？这与 Tendermint 的视图切换过程相关。下图为 Tendermint 的视图切换过程：
 
-![image.png](/assets/images/tendermint2-img/image4.png)
+![image4](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image4.6bh882bel6.png)
 
 这个例子也在 [Part1 文章](https://xufeisofly.github.io/blog/tendermint)中介绍过。图中所描述的过程如下：系统存在 1，2，3，4 四个 Validator，其中 1 为 Leader 或 Proposer，4 是一个拜占庭节点，可能存在恶意行为。在一轮正常的共识的 Prevote 阶段中，节点 2，3 没有收到 +2/3 的 `Prevote for Block` 投票，因此没有产生最新的 `LockedQC`（`LockedQC` 是 HotStuff 的概念，在 Tendermint 中即为 `LockedBlock`，在 Casper FFG 中即为 Justification，为了方便，后面统一使用 LockedQC），节点 1，4 成功产生 `LockedQC`。很显然，此时由于 `LockedQC` 不够 +2/3 共识过程陷入僵局，需要进行视图切换更换 Leader 重新发起共识。
 
@@ -124,7 +124,7 @@ func (cs *State) handleTimeout(ti timeoutInfo, rs cstypes.RoundState) {
 
 不妨假设新 Leader 即节点 2 没有收到节点 1 的包含 Locked 信息的 `Precommit` 投票，于是新 Leader 就会认为上一个 `Round` 中 `Proposal` 提案并没有生成 `LockedQC`，我应该重新发起一个全新的 `Block` 作为提案。但由于节点 1 已经 Lock 了之前的提案，因此新一个 `Round` 的全新提案不会被它验证通过，节点 1 会对新的提案投反对票。如下图。
 
-![image.png](/assets/images/tendermint2-img/image5.png)
+![image5](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image5.2obokjfm3e.png)
 
 验证提案的代码如下，节点 1 会因 `LockedBlock` 冲突而拒绝新提案，验证逻辑我们在下文中会详细介绍。
 
@@ -148,7 +148,7 @@ func (cs *State) defaultDoPrevote(height int64, round int32) {
 
 节点 1 反对新提案，节点 2，3 同意新提案，节点 4 是恶意节点可能会进行冲突的投票。后续过程可能如下：节点 1 认为系统状态是 B，节点 2，3 认为系统状态是 A，节点 4 是恶意节点可能会发送不同的系统状态。那么由于节点 4 的存在，经过 `Prevote` 阶段后仅有节点 2 和 4 成功产生了 `Lock for A`，考虑到 4 是恶意节点，可以认为只有节点 2 产生了 `Lock for A`。如下图。
 
-![image.png](/assets/images/tendermint2-img/image6.png)
+![image6](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image6.1e8re7xmsb.png)
 
 > 多说一句，如果只有一个阶段此时共识已经分叉了，这也就是为什么 BFT 协议最少有两个阶段的原因。
 >
@@ -199,7 +199,7 @@ func (cs *State) addVote(vote *types.Vote, peerID p2p.ID) (added bool, err error
 ## Round-Based 设计和 Valid 概念
 和其他 BFT 共识协议不同的是，Tendermint 不仅仅有 `Height`，同一个 `Height` 还有多个 `Round`。`Height` 表示这个位置需要共识出一个提案，而 `Round` 表示对该 `Height` 进行共识时，由于存在网络问题，可能需要多个 `Round` 才能成功。如下图，Height N 的共识从 `Round0` 开始，一直到 `Round3` 才提交成功。
 
-![image.png](/assets/images/tendermint2-img/image7.png)
+![image7](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image7.67xmacibvf.png)
 
 当一个提案收到 +2/3 的 `Prevote for Block` 投票，说明这个提案被系统认可，有可能被成功提交，这些提案在论文中被称为 Possible Decision，会被设置到 `ValidBlock` 变量当中，而对应的 `Round` 会被设置为 `ValidRound`，因此 `ValidBlock` 是一个 Possible Decision，最终被提交的提案一定会从中选出。
 
@@ -262,7 +262,7 @@ HotStuff 中的 Locked 概念可以理解为 Tendermint 中 `ValidBlock` 和 `Lo
 
 举个例子，如果我们把一个 Height 当中多个 Round 的共识过程展示出来，应该是下图这个样子。
 
-![image.png](/assets/images/tendermint2-img/image8.png)
+![image8](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image8.7p3rc3mgm4.png)
 
 图中红色箭头表示 Proposer 打包了箭头指向的 `ValidBlock` 作为新提案。上图中，r0 因为没有收集到 +2/3 的 `Prevote for Block`投票，没有称为 `ValidBlock`，共识失败。r1 打包了一个全新的提案，并获得了 POL，但没有成功 Commit。r2 因此打包了 r1 的提案作为本轮提案，并且设置 `POLRound = r2`（红色箭头），并成功获得 POL，但没有成功 Commit。同理，r3 打包了 r2 作为提案，获得 POL 并在本轮成功完成提交。Height N 共识完成。
 
@@ -270,7 +270,7 @@ HotStuff 中的 Locked 概念可以理解为 Tendermint 中 `ValidBlock` 和 `Lo
 
 再看下图的两个例子，均是针对 Height N 进行共识，其中 r0 已经获得 POL 但提交失败，r1 获取 POL 失败，于是 r2 基于 r0 继续共识且获取了 POL 并被 Locked，但依然没有 Commit，此时进入 r3。图中讨论了两个情况，上面例子中，r3 看到了 r2，并基于 r2（`POLRound = r2`）继续共识，此时由于 $ POLRound\geq LockedRound $，因此 Validator 认为 r3 合法。而下面的例子中，r3 无视 r2 做过的努力，基于 r0 （`POLRound = r0`）继续共识，此时由于 $ POLRound < LockedRound $，因此 Validator 认为 r3 非法，会投 `Prevote for Nil` 票。
 
-![image.png](/assets/images/tendermint2-img/image9.png)
+![image9](https://xufeisofly.github.io/picx-images-hosting/tendermint2/image9.5j4cqbusv0.png)
 
 总的来说，`ValidBlock` 和 `ValidRound` 是使用 Round-Based BFT 共识的代价。**在同一个 `Height` 中，由于多个 `Round` 的提案都有可能收获足够的投票，如果贸然设置成 `LockedBlock`，我们无法保证不同 Validator 之间 `LockedBlock` 的一致性。而通过设计 `ValidBlock` 和 `ValidRound` 的包含机制可以保证 `LockedBlock` 永远是最新的 `ValidBlock`。**
 
