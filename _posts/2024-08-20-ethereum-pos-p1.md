@@ -1,7 +1,7 @@
 ---
 title: 以太坊的 PoS - Part1 共识协议总览
 layout: post
-post-image: "/assets/images/ethereum-pos-p1-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/ethereum1/head.77dpnis7t5.jpg"
 tags:
 - ethereum
 - consensus
@@ -26,7 +26,7 @@ tags:
 
 我们口口声声所说的区块链实际情况下可能是一个「区块树」，即存在多个分支，如下图。
 
-![image.png](/assets/images/ethereum-pos-p1-img/image.png)
+![image](https://xufeisofly.github.io/picx-images-hosting/ethereum1/image.8adeyeo1os.png)
 
 这是因为网络环境是复杂且不可靠的，比如由于消息延迟等原因节点同时收到两个合法区块，区块链就会出现分叉。分叉选择规则就是用于在有多条分叉出现的情况下，告诉节点选择哪一条链作为合法链，从而从该链之后继续出块。
 
@@ -52,7 +52,7 @@ tags:
 
 如下图，B3 块之后会出现两条分支，B4 ← B5 和 B4’ ← B5’，此时新的矿工打包块 B6 时，PoW 选择其中一个分支作为父块并沿着它继续挖矿避免分散算力，而 PoS 选择两个更能保证收益。
 
-![image.png](/assets/images/ethereum-pos-p1-img/image%201.png)
+![image-1](https://xufeisofly.github.io/picx-images-hosting/ethereum1/image-1.41y7okxswa.png)
 
 这是因为在 PoS 系统中，矿工是通过锁定他们的代币参与共识的，而不是通过消耗计算资源。这意味着即使矿工在所有分叉上都进行签名，也不会多消耗什么资源。因此，如果多个分叉出现，矿工可能会在所有分叉上签名，以确保他们利益最大。但这就会导致矿工会沿着所有的分支出块，从而使交易的执行无法收敛到一个版本中。这就是原生 PoS 面临的一个重要问题，称为 Nothing at Stake。
 
@@ -69,7 +69,7 @@ Long Range Attack 是一种主要针对 PoS 的攻击方法。在这种攻击中
 
 贿赂攻击对于没有质押金的 PoS 十分致命，但其实即使有质押金，攻击者也可以在该矿工已经取出质押金之后拿到他的私钥，并构建一条攻击链，如下图。
 
-![image.png](/assets/images/ethereum-pos-p1-img/image%202.png)
+![image-2](https://xufeisofly.github.io/picx-images-hosting/ethereum1/image-2.8z6oifbkp6.png)
 
 图中，攻击者从很早的块开始分叉，逐步构建出一条比当前主链还长的链，然后就可以试图说服其他验证者采纳这条新链了（具体取决于分叉选择规则），这样主链上的交易都会被回滚掉。也就是说，只要你能拿到这些出块节点的私钥，就可以随意创造区块链的历史。
 
@@ -124,7 +124,7 @@ CAP 理论介绍了一个分布式系统存在三个性质，即
 
 CAP 理论指出，当网络异常导致节点发生分区（Partition Tolerance）时，不可能同时满足 Consistency 和 Availability，只能选择一个。这不难理解，借用[这篇文章](https://eth2book.info/capella/part2/consensus/preliminaries/)中的一个例子，如下图。
 
-![image.png](/assets/images/ethereum-pos-p1-img/image%203.png)
+![image-3](https://xufeisofly.github.io/picx-images-hosting/ethereum1/image-3.92qag54nez.png)
 
 图中网络发生了故障，节点分成了 A 和 B 两个部分，单个部分之内的节点可以正常通讯，但 A 和 B 之间发送的消息无法彼此触达。此时，如果客户端同时给 A 和 B 发送一条请求消息，只会有两种情况。
 
