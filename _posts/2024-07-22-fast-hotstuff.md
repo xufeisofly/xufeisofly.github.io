@@ -1,7 +1,7 @@
 ---
 title: Fast HotStuff 理解和思考
 layout: post-with-content
-post-image: "/assets/images/fast-hotstuff-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/head.1e8rdphh1l.jpg"
 tags:
 - hotstuff
 - consensus
@@ -23,22 +23,22 @@ tags:
 
 HS 对于新交易的验证逻辑保证了共识协议的安全性（Safety）和活性（Liveness）。在 Chained HotStuff 中，每个提案通过 QC 指针与前一个提案相连，当一个 Leader 节点打包新的提案时，并没有要求这个提案必须从最新块之后打包，只需要在最新的 Locked 提案之后即可。这就使得恶意节点可以进行分叉攻击。如下图。
 
-![Untitled](/assets/images/fast-hotstuff-img/Untitled.png)
+![Untitled](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/Untitled.5fkqs3lkem.png)
 
 新提案 View4 本应该从 View3 之后出块，但恶意节点可以选择从 View1 （最新 Locked 视图）之后出块而且能顺利通过验证。这种攻击行为不会对系统安全性造成影响，却令吞吐量大幅下降，极端情况如下图。
 
-![Untitled](/assets/images/fast-hotstuff-img/Untitled%201.png)
+![Untitled-1](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/Untitled-1.3k85zh94sr.png)
 
 Fast HotStuff 论文中给出了在持续的分叉攻击下，随着拜占庭节点数量 f 增加，系统吞吐量的改变情况。可以看到 f 增加时，系统吞吐量快速下降（Average Case & Worst Case）。
 
-![Untitled](/assets/images/fast-hotstuff-img/Untitled%202.png)
+![Untitled-2](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/Untitled-2.5tr6iytv9n.png)
 
 # Fast HotStuff 逻辑
 ---
 
 Fast HotStuff(下文简称 FHS) 的核心逻辑，就是**确保新提案永远从最长的链后继续出块**，**即 Leader 确保提案中的 QC 是最新的 QC（即 HighQC），并为之提供证明**。为此 FHS 分别讨论了正常路径（Happy path） 和超时路径（Unhappy path）两种情况，如下图：
 
-![Untitled](/assets/images/fast-hotstuff-img/Untitled%203.png)
+![Untitled-3](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/Untitled-3.73u3pabuks.png)
 
 - Happy path: 由于提案的 View 是 HighQC 决定的，因此在 Happy path 下，Replica 只需要要求新提案的 View 必须大于自己的 CurView 即可保证 QC 为 HighQC。
 - Unhappy path: 超时触发视图切换后，Leader 收集 2/3+1 节点各自的 HighQC 及其签名，生成聚合签名 AggQC，作为 HighQC 的证明。新提案必须根据此 HighQC 生成。
@@ -66,17 +66,17 @@ FHS 论文中证明了，只要满足「新提案永远打包 HighQC」这个事
 	
 举个例子。下图中，初始状态下 4 个节点的 HighQC 均为 QC3，在 View4 的共识中节点 4 成功生成 QC4，然而广播 QC4 时只有节点 3、4 接收到因而触发超时视图切换。此时节点 1、2 的 HighQC = QC3，节点 3、4 的 HighQC = QC4。
 	
-![Untitled](/assets/images/fast-hotstuff-img/image20.png)
+![image20](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/image20.70ahrkiruy.png)
 
 在视图切换时，新 Proposer 节点 1 收集到节点 1、2、4 的 HighQC 均为 QC3（其中节点 4 为拜占庭节点）。此时我们不生成 AggQC，让节点 1 打包自己认为的 HighQC 即 QC3 并广播提案（视图 View 4'），会发生什么？
 
 结果便是：节点 1、2 投同意票，节点 3 由于发现 QC3 小于自己的 QC4 而拒绝该提案，节点 4 作为拜占庭节点投同意票，新 Proposer 为 View 4' 生成 QC4'。不幸的是，下一轮的 Proposer 恰好是拜占庭节点 4，那么此时节点 4 同时拥有 QC4 与 QC4'，它可以选择基于两者任何一个分支发布新的提案并且都会获得通过（如果它打包 QC4 会获得所有节点的同意，如果它打包 QC4' 会获得除了节点 3 外其余节点的同意）。
 
-![Untitled](/assets/images/fast-hotstuff-img/image21.png)
+![image21](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/image21.67xm9u264q.png)
 
 此外它还可以选择将 QC4' 仅广播给节点 1、2，自己则为节点 3 站台 QC4，这样系统便无法进行视图切换而丧失活性。如下图。
 
-![Untitled](/assets/images/fast-hotstuff-img/image22.png)
+![image22](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/image22.3uuzsmocy3.png)
 
 出现这种情况的直接原因是，不携带 AggQC 导致同时出现 QC4 与 QC4'，并且两者都是合法的，最终可能造成状态分叉。而使用 AggQC(HighQC=QC3) 的意义便在于告知所有节点 QC4 是非法的，从而确定 QC4' 这唯一一个合法分支。
 
@@ -128,7 +128,7 @@ func (bls *bls12Base) coreAggregateVerify(publicKeys []*PublicKey, messages [][]
 
 下表为阈值签名和聚合签名特性对比。
 
-![Untitled](/assets/images/fast-hotstuff-img/Untitled%204.png)
+![Untitled-4](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/Untitled-4.41y7o2aido.png)
 
 FHS 在 Unhappy path 时对 HighQC 进行聚合签名生成 AggQC，打包了 AggQC 的提案相当于告诉所有的 Replicas 自己是从最长链之后出块的，因此可以避免分叉攻击，Replica 需要对 AggQC 进行两个方面的验证：
 
@@ -159,7 +159,7 @@ FHS 在 Unhappy path 时对 HighQC 进行聚合签名生成 AggQC，打包了 Ag
 
 不过需要说明的是，聚合签名由于是 Leader 生成的，该 Leader 完全可以对该投票节点的列表进行恶意操作，比如去掉自己不喜欢的节点，而放入串谋节点的签名。因此我们虽然可以保证聚合签名的正确性，但却无法完全保证聚合签名的真实性，这个问题需要额外进行解决。下图中示意了恶意 Leader 在收集投票签名时，故意不使用 Sig3 而使用 Sig4 的过程。
 
-![Untitled](/assets/images/fast-hotstuff-img/Untitled%205.png)
+![Untitled-5](https://xufeisofly.github.io/picx-images-hosting/fast-hotstuff/Untitled-5.45u7dzhql.png)
 
 # 总结
 ---
