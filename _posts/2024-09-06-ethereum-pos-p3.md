@@ -1,7 +1,7 @@
 ---
 title: 以太坊的 PoS - Part3 Casper FFG
 layout: post-with-content
-post-image: "/assets/images/ethereum-pos-p3-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/ethereum3/head.45u7wu8lv.jpg"
 tags:
 - ethereum
 - consensus
@@ -57,7 +57,7 @@ Casper FFG 是一个两阶段的 BFT 共识协议，同时加入了 Stake 作为
 以太坊使用了 Epoch 这个概念，规定一个 Epoch 分为 32 个 Slot，并将所有的 Validator（参与质押的节点）也分为 32 个 Validator Set，分别负责 32 个 Slot 的出块。Casper FFG 的粒度是 Epoch 而非 Slot，每一个 Epoch 中最多有 32 个区块，而第一个区块称为 Checkpoint。因此 Checkpoint 就是一个普通区块，只不过我们会对 Checkpoint 尝试进行 Justify  和 Finalize，而被 Finalized 的 Checkpoint 的所有祖先区块都会被 Finalized，如下图。
 
 
-![image.png](/assets/images/ethereum-pos-p3-img/image1.png)
+![image1](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image1.b923cge1f.png)
 
 
 整个共识过程就是一个普通的 $ O(n^2) $ 通讯复杂度的 BFT 共识，只不过共识的内容不再是交易，而是 Checkpoint 区块的 Finality 信息，交易的共识已经在 Proposal Mechanism 中被完成了。换句话说，Proposal Mechanism 是对交易内容进行共识，而 Finality Rule 是对区块是否 Finalized 进行共识。
@@ -81,15 +81,15 @@ Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 
 如果一个 Validator 对 $ s\to t $ 进行了投票，我们就认为在它本地视图中 $ s $ 之间 $ t $ 构成了一个 Link。一旦 $ s\to t $ 收集到超过 $ 2\above{1pt}3 $ 的投票， $ t $ 就会完成 Justification，此时我们说 $ s $ 与 $ t $ 之间构建了一个 **Supermajority Link**。如下图。本文所有的图片中使用蓝色箭头表示 Link，红色箭头表示 Supermajority Link。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image2.png)
+![image2](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image2.2ks2mu14ic.png)
 
 接下来我们简化一下区块链结构用于理解 Casper FFG 协议。在 Finality Rule 中不用考虑常规 Block 只考虑 Checkpoint，所以我们去掉非 Checkpoint 的区块，仅保留每个 Epoch 中的 Checkpoint，就可以构成一个 Checkpoint tree，Checkpoint 之间用虚线箭头连接，表示中间省略了常规区块，如下图。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image3.png)
+![image3](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image3.3d4y4khq8k.png)
 
 每个 Checkpoint 都会去尝试收集 Validator 的两轮投票（`Prepare` 和 `Commit`），一旦收集到超过 $ >{2\above{1pt}3} $ 权重的投票，就会在 Source Checkpoint 和 Target Checkpoint 之间建立起一个 Supermajority Link（红色箭头表示），并认为该 Target Checkpoint 已经被 Justified。如果对已 Justified 的 Checkpoint 再次收集到超过 $ >{2\above{1pt}3} $ 权重的投票，则认为该 Checkpoint 被 Finalized。如下图。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image4.png)
+![image4](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image4.3nrrxpwydx.png)
 
 上图中，每个 Checkpoint 都会尝试成为 Target Checkpoint，却不一定收集到足够的投票完成 Justification（白色区块），原因基本为：
 
@@ -102,7 +102,7 @@ Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 
 在 Pipeline 设计下，判断 Checkpoint 是否 Finalized 只需要数连续 Justified Checkpoint 的个数就可以了。下图中，黄色代表 Justified Checkpoint，绿色代表 Finalized Checkpoint。如果一个 Justified Checkpoint 的直接子 Checkpoint 也被 Justified，那么就可以将本 Checkpoint 变为 Finalized 状态。如果两个 Justified Checkpoint 不是父子关系，那么就无法完成父 Checkpoint 的 Finalization。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image5.png)
+![image5](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image5.7i0jgoewb9.png)
 
 正如 BFT 的 Locked 状态可用于验证新提案是否冲突，完成了 Justification 的 Checkpoints 也可以用于检测新的提案，检测的规则称为 Casper Commandments，这来源于 Vitalik 研究 BFT 共识后总结出来的两个 Slashing Conditions（惩罚条件）。
 
@@ -111,7 +111,7 @@ Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 
 如果两个 Checkpoint 在不同的分支上，就说明两个 Checkpoint 是冲突的，很显然，一个提案中 Source Checkpoint 和 Target Checkpoint 不能是冲突的，这是提案的基本验证规则，如下图中的 $ B\to C $。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image6.png)
+![image6](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image6.3yelqvc6j9.png)
 
 在设计 Casper FFG 协议时，我们明显不希望有两个互相冲突的 Checkpoint 被 Finalized，因为这样就意味着一个分支被另一个分支回滚了，也就意味着有了发生分叉攻击的可能性。
 
@@ -122,12 +122,12 @@ Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 
 画图表示这两个条件成立的情况如下：
 
-![image.png](/assets/images/ethereum-pos-p3-img/image7.png)
+![image7](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image7.8hgmtuhnh2.png)
 
 
 注意，如果 $ s $ 和 $ t $ 中间存在其他 Checkpoint，那么为 $ s\to t $ 投票也相当于为它们中间的这些 Checkpoint 投了票，这部分投票也不能有 double vote 存在。举个例子，下图中， $ a' $ 已经收集到了超过 $ 2\above{1pt}3 $ 的投票，这就意味着 $ a $ 没有收集到足够的投票，而如果此时 $ c $ 又被 Justified，就说明至少有超过 $ 1\above{1pt}3 $ 的 Validator 同时对 $ a $ 和 $ a' $ 投了票，它们的质押金将会被罚没。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image8.png)
+![image8](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image8.2obokju786.png)
 
 由此我们可以得到一个结论：**一个高度** $ h $ **最多只能拥有一个 Justified Checkpoint。**
 
@@ -146,16 +146,16 @@ Vote 投票包括如下字段：`<v, s, t, h(s), h(t)>`，其中：
 
 如果存在两个冲突的 Checkpoint， $ a_m $ 和 $ b_n $ 被 Finalized，那就说明它们的直接子 Checkpoint，即 $ a_{m+1} $ 和 $ b_{n+1} $ 是被 Justified 的，换句话说存在 $ a_m\to a_{m+1} $ 和 $ b_n\to b_{n+1} $ 两个 Supermajority Link。那么这两组 Checkpoint 的高度一定满足 $ n > m+1 $ 或者是 $ m>n+1 $，我们假设 $ n > m+1 $，如下图。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image9.png)
+![image9](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image9.7p3rc411qv.png)
 
 而由于 $ b_n $ 是一个 Finalized Checkpoint，它也一定是某一个 Supermajority Link 的 Target， $ b_n $ 与 $ a_{m+1} $ 之间一定存在一个 $ b_i $ 使得 $ b_i $ 是 $ a_{m+1} $ 之后第一个 Target Checkpoint。如下图。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image10.png)
+![image10](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image10.pfhu7oown.png)
 
 
 而 $ b_i $ 一定也是一个 Supermajority Link 的 Target，此时就可以推导出这个 Link 的 Source Checkpoint 一定在 $ a_{m} $ 之前了，这就与条件二不能发生 Link 嵌套冲突。如下图。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image11.png)
+![image11](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image11.5c14uwn8k7.png)
 
 Accountable Safety 证明了在满足拜占庭假设的前提下共识协议的安全性无法被攻击，而不满足拜占庭假设时如果想要攻击 Checkpoint，就一定会违反 Slashing Conditions。也就是说，如果出现两个冲突的 Checkpoint 被 Finalized，那么一定存在超过 $ {1\above{1pt}3} $ 的 Validator 违反了 Slashing Conditions。
 
@@ -170,7 +170,7 @@ Accountable Safety 证明了在满足拜占庭假设的前提下共识协议的�
 
 设 $ a $ 是最高的 Justified Checkpoint， $ b $ 是最高的拥有投票但 Unjustified 的 Checkpoint，两个 Checkpoints 可能不在同一个分支。此时永远可以存在一个 Checkpoint $ c $，高度满足 $ h(c)=h(b)+1 $，且 $ a\to c $ 是合法的（不和任何一个 Slashing Condition 冲突）。如下图所示。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image12.png)
+![image12](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image12.pfhu7oowo.png)
 
 由于 $ a $ 是最高的那一个 Justified Checkpoint，因此 $ c $ 不会是其他 Suparmajority Link 的 Target，没有违反 Slashing Condition 1。而 $ a\to c $ 之间仅存在一个 $ b $ 且 $ b $ 身上没有 Suparmajority Link，因此也没有违反 Slashing Condition 2。Plausible Liveness 得到证明。
 
@@ -224,7 +224,7 @@ Casper FFG 对其底层的 Fork Choice Rule 的要求为：
 
 比特币的 Longest Chain Rule 就不能用于 Capser FFG，否则会因违反 Slashing Conditions 造成系统卡死。下图中，Checkpoint $ a $ 和 $ b $ 都没有完成 Justification，而 $ a' $ 被 Justified。如果此时使用 Longest Chain Rule，应该选择 $ c $ 作为下一个 Checkpoint，但由于 $ a' $ 已经收到了 $ 1\above{1pt}2 $ 的 Commit 投票，这就意味着上面的分叉不可能出现 Finalized 的 Checkpoint 了，除非有 $ 1\above{1pt}6 $ 的 Stake 被罚没，因此只能选择 $ b' $ 作为新的 Checkpoint。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image13.png)
+![image13](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image13.54xwzh134o.png)
 
 这个例子再次印证了 Fork Choice Rule 必须从最高 Justified Checkpoint 之后选择 `HeadBlock` 的要求。对于以太坊来说，LMD GHOST 需要使用高度最高的 Justified Checkpoint 作为每次的 `RootBlock`。每次进行分叉选择时，LMD GHOST 都会从最高 Justified Checkpoint 开始逐步根据 GHOST 原则选择分叉，直到获取 `HeadBlock`。比特币的 PoW 如果想使用 Casper FFG 也应该进行类似的适配。
 
@@ -257,11 +257,11 @@ BFT 共识的安全性看似很高，但都是基于拜占庭假设这个大前�
 
 这种 Nothing at Stake 行为和 Chain-Based PoS 中的没有什么不同，是典型的 double vote，在 Casper FFG 中会被 Slashing Condition 检测和惩罚。目前我也在思考是否可以在 HotStuff 引入相同的惩罚机制来避免这种攻击行为。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image14.png)
+![image14](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image14.2rvai9n9y1.png)
 
 下面图中简单绘制了传统 BFT 共识、中本聪共识以及 Casper FFG 的 Safety 和 Liveness 对比，并区分了是否满足拜占庭假设的情况。在满足拜占庭假设时，传统 BFT 共识拥有较高的 Liveness 和很强的 Safety，相比而言，中本聪共识的优势则是 Liveness，其 Safety 由于没有实现 Finality 而偏低一些，而 Casper FFG 兼具两者优势。但在恶意节点超过 $ 1\above{1pt}3 $ 后，BFT 共识便瞬间丧失 Liveness 和 Safety，而 Casper FFG 由于 Liveness 依赖 Proposal Mechanism 不受影响，而 Safety 由于惩罚机制实现了 Economic Finality 也能保证较强的安全性。
 
-![image.png](/assets/images/ethereum-pos-p3-img/image15.png)
+![image15](https://xufeisofly.github.io/picx-images-hosting/ethereum3/image15.4jo9d66mu1.png)
 
 # 总结
 ---
