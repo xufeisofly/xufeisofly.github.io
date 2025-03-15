@@ -1,7 +1,7 @@
 ---
 title: 以太坊的 PoS - Part2 LMD GHOST
 layout: post
-post-image: "/assets/images/ethereum-pos-p2-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/ethereum2/head.3rbdvfkfye.jpg"
 tags:
 - ethereum
 - consensus
@@ -49,13 +49,13 @@ tags:
 
 下图中，因提高吞吐量出现了大量区块冲突，产生分叉。对于比特币使用的 Longest Chain Rule 来说，攻击者 A 很容易发动攻击，恶意回滚交易。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image1.png)
+![image1](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image1.2obokjom2u.png)
 
 攻击者 A 私自准备了一条攻击链，此时若使用 Longest Chain 作为权威链（图中蓝色区块所在链），攻击链 A 很容易就能成功替换掉它。这是因为分叉会导致算力的分散，不在最长链上的区块没有任何价值（high wastage and low security），因此攻击链算力不需要达到 50% 就可以完成攻击。
 
 GHOST 论文中提出了新的 Fork Choice Rule 协议来解决上述问题，The Greedy Heaviest-Observed Sub-Tree，顾名思义，权威链的标准不再是 Longest Chain 而是 Heaviest Chain。当决定哪个分支时，GHOST 认为每个子块都是对其所有祖先的一次认可，因此分支的所有子块都会被纳入权重。如果每个子块的权重为 1，那么可以得到下图中的 GHOST chain 作为权威链（图中绿色区块所在链）。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image2.png)
+![image2](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image2.5j4cqc3suf.png)
 
 具体证明过程请见论文，但其实可以这样想：如果一个块后面出现了两个子块（分叉），说明这两个子块在彼此竞争，但其实还存在另一个隐含信息，**即这两个子块都为其父块投了认可票。**这是 longest chain 规则没有考虑到的。
 
@@ -69,7 +69,7 @@ GHOST 协议在原生的 PoS 或 PoW 中作为 Fork Choice Rule 并没有问题�
 
 先简单介绍 Casper FFG（下篇文章会详细介绍），在每共识若干个区块之后，系统会尝试产生一个 Checkpoint 块，这个块以及它所在分支之前的所有区块都被确定，无法被其他分叉回滚。Checkpoint 产生的条件是区块受到 ${2\above{1pt}3}$ 以上 Validator 的认可，即 > 66.6% Stake 权重的投票。而我们所说的 Fork Choice Rule 的使用范围一般是 Checkpoint 之后未确定的部分。因此，有可能 Validator Set 对于系统状态的最新认知和 GHOST 协议选择的分支是相互冲突的，如下图。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image3.png)
+![image3](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image3.8vn2kpkd6v.png)
 
 图中，绿色的分叉权重为 111，黄色为 96，根据 GHOST 规则绿色分叉会赢得胜利，然而黄色链的最后一个区块权重为 65，更接近成为 Checkpoint。为了解决这个问题，Vlad 和 Vitalik 分别提出了 LMD GHOST 协议和 IMD GHOST 协议，IMD GHOST 协议不是基于权重的加和而是基于权重的最大值进行分叉选择，这里对 IMD GHOST 不进行过多介绍，感兴趣可以看[这篇](https://ethresear.ch/t/immediate-message-driven-ghost-as-ffg-fork-choice-rule/2561?u=benjaminion) Vitalik 的文章。
 
@@ -111,15 +111,15 @@ LMD 表示在选取 HeadBlock 考虑分叉权重时，只需要考虑每个 Vali
 下面举个例子介绍 LMD GHOST 协议选择分叉的基本逻辑。
 假设网路中仅包含 A, B, C, D, E 这 5 个节点，为了简化过程，我们令它们的质押金相同（权重相同），且将一个 Epoch 分为 10 个 Slot，这样每个 Slot 的 Validator Set 只有一个节点。每个 Slot 出块后，只需要 Proposer 自己给自己投票就行了。下图中，5 个节点会轮流负责签名出块，形成一条分叉的 Block Tree：
 
-![image.png](/assets/images/ethereum-pos-p2-img/image4.png)
+![image4](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image4.9dd49alqrs.png)
 
 图中，绿色的区块由于肯定包含了 Proposer 自己的 attestation，因此可以作为这 5 个 Validator 对应的 Latest Message。由于所有 Validator 的权重一致，因此每个区块算作对其所在分支的一份同意投票，每一个区块拥有的投票数量即为其直接子区块的投票份额累积，如下图。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image5.png)
+![image5](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image5.8ojup9y7rc.png)
 
 当使用 LMD GHOST 决定权威链时，要从 root block 开始选择权重最大的路径，即 5→5→4→4→2→1。（这个例子中恰好是 Longest Chain，但这只是巧合）
 
-![image.png](/assets/images/ethereum-pos-p2-img/image6.png)
+![image6](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image6.8z6oifdfwo.png)
 
 为了更直观的理解这个过程，这里推荐[这个LMD GHOST源码项目](https://github.com/protolambda/lmd-ghost/tree/master)。下面摘取并注释了 `GetHead` 部分的代码：
 
@@ -171,19 +171,19 @@ func (gh *SpecLMDGhost) getAncestor(block *dag.DagNode, slot uint64) *dag.DagNod
 
 上面例子为了便于理解，令每个 Validator Set 中仅有一个节点，所以 Proposer 不需要额外收集投票。实际上每一个 Block 发布后需要收集 Validator Set 中其他验证者投票，并以投票权重之和作为该 Block 的最终权重。一个 Block 的权重等于该 Block 收到的 attestation 投票的权重总和，加上其子块提供的权重，并且在计算权重时仅考虑 Validator 最后一次 attestation，如下图中 Validator Set 为 A,B,C,D,E 5 个节点。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image7.png)
+![image7](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image7.3d4y4kc53c.png)
 
 ## Sticky 性质
 
 LMD GHOST 具有 sticky 的性质：**节点一旦给某一个分支投票就倾向于继续为这个分支投票，除非一定比例的节点发生突然叛变（会收到惩罚）。**比如下图中 A,C 同时叛变到 B 的攻击链上时，这条攻击链才有可能成功。
 下面是 Vitalik 举的例子。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image8.png)
+![image8](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image8.39lc6uj2dl.png)
 
 还是 A,B,C,D,E 5 个节点分到了 10 个 Slot 中，且 Stake 相同，因此区块本身即可表示一个权重为 1 的投票。图中的 B 作为恶意节点尝试独自构建一条攻击链，正常情况下，剩余 4 个诚实节点并不会买账，会根据 LMD GHOST 继续选择下面的一条链作为权威链（canonical chain）。
 图中，每个节点都分别进行了两次出块投票，我们只关注第二次出块时的分叉选择，并查看该节点在选择分叉时的视图情况如下图。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image9.png)
+![image9](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image9.b923caswa.png)
 
 图中，绿色表示当前 Proposer 要打包的区块，蓝色表示所有 Validator 最新产生的区块（投票），所以蓝色的块决定了绿色块即将选择的分支。比如在 A 的视图中，当 A 尝试进行第二次投票时看到的是 B 投给了上面的链，A, C, D, E 投给了下面，因此 `Bottom : Top = 4 : 1`。
 
@@ -191,7 +191,7 @@ LMD GHOST 具有 sticky 的性质：**节点一旦给某一个分支投票就倾
 
 从这个过程就可以发现，诚实节点更倾向于沿着之前的权威链继续出块，而没有动力去频繁更换分支的选择，除非此时有两个节点发生「恶意叛变」，投票给上面的链，但这很容易被发现并收到惩罚。
 
-![image.png](/assets/images/ethereum-pos-p2-img/image10.png)
+![image10](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image10.7snd9tojbe.png)
 
 > we can very generally say that any validator's new message will have the same opinion as their previous messages, unless two other validators have already switched sides first.
 
@@ -200,7 +200,7 @@ LMD GHOST 具有 sticky 的性质：**节点一旦给某一个分支投票就倾
 安全性由 Finality 决定，以太坊使用了 Casper FFG 作为 Finality Rule，这是一个 BFT 共识机制，像 Tendermint 一样，我们使用两轮投票实现一个区块的 Finality。然而在没有 Casper 的情况下，LMD GHOST 的是否可以提供部分安全性，又是如何量化的？
 我们定义一个参数 $q$，称为安全值，表示一条分支链得到 Validator 投票的权重与总 Validator 权重的比值。例如，5 个 Validator 中有 4 个 选择该分支，那么 $q = 0.8$。我们设 $q_b$ 为 $b$ 这个块的安全值，那么从$b$块发布开始，随着其子树上面的投票权重越来越大， $q_b$ 也会越来越高。一般认为当安全值大于某个阈值，即 $q_b > q_{min}$ 时，块 $b$ 成为了一个真正「安全的」区块，无法被攻击回滚。如下图。
 
-[![pAAY5rD.png](https://s21.ax1x.com/2024/08/29/pAAY5rD.png)](https://imgse.com/i/pAAY5rD)
+![image11](https://xufeisofly.github.io/picx-images-hosting/ethereum2/image11.5c14uwl9xc.png)
 
 对于 LMD GHOST 来说，阈值$q_{min}$被定义为 $β + {1\above{1pt}2}$，其中 $β$ 表示恶意节点控制的 Stake 权重值，一般来说认为小于 ${1\above{1pt}3}$。也就是说当 Validator 全部是诚实节点时，只要块 $b$ 收获一半 Validator 的认可，该块就会被「最终确认」。
 
