@@ -1,7 +1,7 @@
 ---
 title: 关于区块链这几天我想到的
 layout: post
-post-image: "/assets/images/about-blockchain-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/about-blockchain/head.1lbz9na4f6.jpg"
 tags:
 - blockchain
 ---
@@ -24,7 +24,7 @@ tags:
 
 与中心化方案不同，区块链不是仅有少量的被某个机构拥有的服务器用于管理数据，而是成千上万台服务器。这些服务器（称为节点）连同其所有权一起分散在世界各地，属于不同的人或组织，这些人互不相识，但他们的节点都保存了一份相同的数据副本。理想情况下，你可以在自己的电脑或手机上运行一个节点，保存这些用户数据的一个副本。还是用转账举例，当你给 Bob 转账的时候，不是像银行一样单单修改自己的数据库就可以的，而是需要全世界**所有的节点同时**修改自己的那份数据，当所有节点的数据都成功被修改时，才认为这个交易真正被完成。（早期区块链也被称为分布式账本，现在看来账本这个词太局限于金融领域了。）
 
-![Untitled](/assets/images/about-blockchain-img/Untitled.png)
+![Untitled](https://xufeisofly.github.io/picx-images-hosting/about-blockchain/Untitled.4jo9d5idwk.png)
 
 区块链上每一份数据的修改请求都需要所有节点达成共识，实现它的技术称为共识算法，这是区块链中的核心部分。区块链共识算法与一些互联网大厂中的数据容灾或异地多活所用的一致性方案是不同的。首先区块链的节点数量是巨大的（目前比特币节点数超过 7 万个，以太坊约7千个），其次节点可能是有恶意的，比如某个恶意节点可以大声告诉其他节点说「这比钱不是转给 Bob 的，而是转给我的」。因此如何能在恶意节点干扰下让如此多的节点针对某一笔交易达成共识，就是共识算法要解决的问题。
 
