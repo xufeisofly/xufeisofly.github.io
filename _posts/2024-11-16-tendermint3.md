@@ -1,7 +1,7 @@
 ---
 title: 从 HotStuff 回看 Tendermint (三)
 layout: post-with-content
-post-image: "/assets/images/tendermint3-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/tendermint3/head.ic9yrrt6r.jpg"
 tags:
 - tendermint
 - consensus
@@ -24,7 +24,7 @@ Tendermint 共识协议当中使用了 `LockedValue` 和 `LockedRound` 对提案
 
 Round2 中，N2 被选举为 Proposer，由于没有 Lock 机制，N2 打包了一个全新的提案 B2 并广播，此时对于 N1 来说由于已经完成了本高度的共识，不会参与 Round2 的提案共识，最终 N2, N3, N4 成功提交了提案 B2，而由于 B2 与 B1 提案是冲突的，这就导致 N1 的状态与 N2, N3, N4 的状态发生了不一致。
 
-![image.png](/assets/images/tendermint3-img/image_p1.png)
+![image_p1](https://xufeisofly.github.io/picx-images-hosting/tendermint3/image_p1.7snd9tje6c.png)
 
 上面例子中仅仅因为网络问题（甚至不涉及拜占庭节点）就使得一个没有 Lock 机制的 Tendermint 丧失了安全性。因此，BFT 共识需要一个 Lock 机制，当一个提案收到 +2/3 的认可后即被 Lock，而新的提案需要保证不与 Locked 提案发生冲突。也就是说 Locked 提案对于节点来说就像一个已经过审的执行方案，是所有节点公认的前进方向，如果在最终执行前有人提出了一个新的提案，必须与 Locked 提案进行比对判断是否冲突。
 
@@ -34,7 +34,7 @@ Round2 中，N2 被选举为 Proposer，由于没有 Lock 机制，N2 打包了�
 
 Round2 中，N2 被选为 Proposer，由于 N2 没有 Lock 提案 B1，因此 N2 打包了一个全新的提案 B2 进行广播，此时由于 N1 已经 Lock 了 B1，在没有 Unlock 机制的情况下，N1 直接拒绝 B2 提案，而 N2, N3 由于没有 Lock 提案 B1，通过了 B2 的验证并生成了 Prevote for B2，而 N4 作为拜占庭节点，故意无视自己 Lock 状态，一同对 B2 进行 Prevote 投票，因此每个节点都能收到 +2/3 的 Prevote 投票（来自 N2, N3, N4）。此时 N1 仍然坚持自己已经 Lock 的 B1 提案所以不会生成 Precommit for B2，N2, N3 则会产生 Precommit for B2，而拜占庭节点 N4 呢，此时又选择不再为 B2 投票。最终的结果是，N1 仍然 Lock on B1，而 N2, N3 Lock on B2，且由于没有节点收集到足够的 Precommit 投票，因此没有任何提案被提交，共识协议卡死。
 
-![image.png](/assets/images/tendermint3-img/image_p2.png)
+![image_p2](https://xufeisofly.github.io/picx-images-hosting/tendermint3/image_p2.m8a6qflw.png)
 
 为此 Tendermint 设计了 Unlock on Polka 的策略，所谓 Polka（或称为 POL，Proof of Lock）即在收集到 +2/3 的 Prevote for Block 同意票时生成，类似于 HotStuff 的 LockedQC。当 Validator 发现了一个比 Locked 提案更新的 ValidBlock（Valid 指已经收到 +2/3 Prevote 投票的提案），即 $ POLRound > LockedRound $ 时，就会 Unlock 之前的 LockedBlock 并 Lock 新的 ValidBlock（见上文）。
 
@@ -128,7 +128,7 @@ func (vals *ValidatorSet) IncrementProposerPriority(times int32) {
 
 举个例子，如下图。优先级 P1 和 P2 对应的权重（VP, Voting Power）分别为 1 和 3，初始状态下优先级（P, Priority）均为 0，以下是 4 个轮次中优先级的变化和 Proposer 的选择。四个轮次依次选出的 Proposer 为 P2、P1、P2、P2，可见 P1 和 P2 被选择的比例确为 1 : 3。
 
-![image.png](/assets/images/tendermint3-img/image_p3.png)
+![image_p3](https://xufeisofly.github.io/picx-images-hosting/tendermint3/image_p3.5mnyo1rqf9.png)
 
 从上图中我们可以看到一个特点，每轮结束时，系统中的总优先级为 0，这个特点可以保证所有节点的权重永远在 0 值附近，不会有大幅度偏离。但是当验证者集合会动态变化时就有可能破坏这个特性。
 
@@ -143,7 +143,7 @@ func (vals *ValidatorSet) IncrementProposerPriority(times int32) {
 
 当验证者的权重突然减少时，可能会破坏轮换算法的「公平性」，即验证者被选中的概率与权重不再成正比。比如下面的情况。P1 P2 权重分别为 4 和 3。但在第 1 轮结束时，P1 由于被选中 Proposer 而落到了很后面的地方，此时 P1 的权重变为 1，那么 P1 需要一点一点的追上来，下面的表格中可以看到，P1 与 P2 被选为 Proposer 的概率并非为 1 : 3，因此轮换算法失去了公平性。
 
-![image.png](/assets/images/tendermint3-img/image_p4.png)
+![image_p4](https://xufeisofly.github.io/picx-images-hosting/tendermint3/image_p4.1ap5gi8ex1.png)
 
 **3.验证者退出和加入**
 
@@ -167,7 +167,7 @@ $ A(P2) = 2 - (1+2)/2 = 0.5 $
 
 下图展示了一个 Evidence 的生命周期。Evidence 会通过 Block 结构体进行 Propose，用于存放恶意行为的举证，目前有 `DuplicateVoteEvidence` 和 `LightClientAttackEvidence` 实现了这个接口，前者是对双签行为（Double Voting）进行举证，由 Consensus Engine 提供，后者是对轻客户端的一些攻击行为，包括 Lunatic，Equivocation，Amnesia 攻击，由轻客户端提供。
 
-![image.png](/assets/images/tendermint3-img/image_p5.png)
+![image_p5](https://xufeisofly.github.io/picx-images-hosting/tendermint3/image_p5.2h8gp3xbie.png)
 
 本文不涉及轻客户端相关内容，感兴趣可参阅[这篇文章](https://medium.com/tendermint/different-types-of-evidence-in-tendermint-5de4440fdd54)，重点讨论 Double Voting。
 
