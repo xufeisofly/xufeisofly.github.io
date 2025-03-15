@@ -1,7 +1,7 @@
 ---
 title: HotStuff 工程设计与实现
 layout: post-with-content
-post-image: "/assets/images/shardora-hotstuff-img/head.jpg"
+post-image: "https://xufeisofly.github.io/picx-images-hosting/hotstuff/head.5tr6iyl5lr.jpg"
 featured: true
 tags:
 - hotstuff
@@ -28,7 +28,7 @@ tags:
 
 BFT 共识有一个前提，即拜占庭假设：拜占庭节点（如恶意或宕机）节点的数量必须少于总节点数的三分之一（即诚实节点多于总数的 `2/3 + 1`）。这就意味着恶意节点数量超过 1/3 时共识就无法继续进行，所以 BFT 共识的活性低于主流的中本聪共识，尤其在节点数量较少时系统更容易被控制。一般认为，参与BFT共识的节点数量需要大于 600 才能基本避免这种串谋攻击（称为 Censorship Attack）。同时 BFT 也牺牲了一定的去中心化特性，比如 PoW 中哪怕仅剩一个节点系统也能恢复数据，而 BFT 却无法做到。不过相比中本聪共识，BFT 共识在性能上却具有绝对优势，通常出块时间可以达到百毫秒级别，同时每个块可以快速被确认，具备很强的最终确定性，这就意味着提交的块永远不会被回滚，因此 BFT 共识的安全性比中本聪共识要高。不过工程中，投票过程对带宽的占用很大，例如 PBFT（通信复杂度为`O(n^2)`），在节点数量超过 100 后，由于过高的带宽占用，系统吞吐量大幅降低。以下为中本聪共识和拜占庭容错共识对比。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled.png)
+![Untitled](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled.3uuzsmfnar.png)
 
 2019 年提出的 HotStuff 将通信复杂度降低到`O(n)`级别，使得大规模节点通过投票进行共识成为可能。即便如此，为保证吞吐量，节点数量往往也不会过多。此类区块链（如 Facebook 的 Diem）通常是定期通过中本聪共识选举出一个共识委员会（节点个数存在上限），再在此委员会中使用 BFT 共识实现系统的高可扩展性，本文涉及的 Shardora 也是如此。HotStuff 是一种三阶段投票的共识协议，在工程实现中，通常使用它的链式版本 Chained HotStuff，并通过一系列工程优化来提高系统性能，降低代码复杂性。
 
@@ -62,7 +62,7 @@ HotStuff 共识算法中涉及一些基本概念：
 
 在 HotStuff 共识算法中，一个提案从发起到最终提交需要经历三次投票。因此，原生 HotStuff 是一个三阶段的 BFT 协议（目前有研究将 HotStuff 改为两阶段，但会在某些特性上做出牺牲，这里只描述原生的三阶段 HotStuff）。下图展示了 Basic HotStuff 的各个阶段及其主要职责。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%201.png)
+![Untitled-1](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-1.26lmvfpd40.png)
 
 图 2.1 三阶段提交
 
@@ -129,7 +129,7 @@ NewView 是一个特殊阶段，用于开启一个新的共识。当一个视图
 
 接下来我们假设一个超时场景，如下图：1 是主节点，2、3、4 为从节点，其中 4 为有恶意的拜占庭节点，系统满足拜占庭假设。在 LockedQC 广播时，2、3 接收 LockedQC 失败。之后因超时发生视图切换。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%202.png)
+![Untitled-2](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-2.2rvahqjteo.png)
 
 图 2.2 LockedQC 同步时超时
 
@@ -139,7 +139,7 @@ NewView 是一个特殊阶段，用于开启一个新的共识。当一个视图
 
 新 Leader 通过超时节点广播的方式收集 `2f+1` 对当前视图状态的投票，广播起到了状态同步的作用，保证了超过 `2f+1` 的节点此时拥有相同的 LockedQC。当收到 `2f+1` 投票后，新 Leader 会生成一个状态证明。之后新 Leader 将该证明广播，证明大部分节点已经拥有相同的 LockedQC，可以顺利推进共识。通讯复杂度为 `O(n^2)`。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%203.png)
+![Untitled-3](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-3.175ji9mly9.png)
 
 图 2.3 PBFT 超时视图切换
 
@@ -147,7 +147,7 @@ NewView 是一个特殊阶段，用于开启一个新的共识。当一个视图
 
 无需广播，但需要设置一个 Δ 超时时间，以保证在该时段内收集到全部诚实节点的 Lock 状态，从而获取到真正的 Highest LockedQC。由于无需投票生成证明，可以达到线性通讯复杂度为。但由于依赖固定时间 Δ，系统丧失了即时响应能力（Responsiveness）。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%204.png)
+![Untitled-4](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-4.77dpmzw7mq.png)
 
 图 2.4 Tendermint 超时视图切换
 
@@ -157,13 +157,13 @@ NewView 是一个特殊阶段，用于开启一个新的共识。当一个视图
 
 HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后生成 KeyQC。当有 LockedQC 生成后，即说明一定有超过 `2f+1` 的节点拥有 KeyQC。那么视图切换时如果收集 `2f+1` 的 KeyQC，其中必有最高的 KeyQC。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%205.png)
+![Untitled-5](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-5.5tr6iyl5lu.png)
 
 图 2.5 HotStuff 收集 KeyQC 进行视图切换
 
 `KeyQC.view` 代表了新提案不能冲突的视图，使用 KeyQC 就能恢复最新的 Locked 状态。因此，HotStuff 在不牺牲系统 Reponsiveness 的同时实现了线性通讯复杂度的视图切换，代价是多了一个 Key 阶段。不难看出，此 Key 阶段即为 HotStuff 中的 Prepare 阶段，如下图。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%206.png)
+![Untitled-6](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-6.8vn2k6mhsz.png)
 
 图 2.6 HotStuff 收集 PrepareQC 进行视图切换
 
@@ -182,7 +182,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 
 有了 TC 的概念之后，即使在新提案发生超时导致选举退化的情况下，视图号仍然可以递进，而且严格单调递增。大多数节点虽然无法对新提案的交易（Transactions）和上一个块的 QC 达成共识，但仍然可以对 CurView 达成共识。相比 Basic HotStuff 的方案，这样可以避免分叉，提高共识效率。下图是使用 TC 和不使用 TC 作为视图切换方案的分叉情况对比，使用 TC 可以避免重复视图号的出现。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%207.png)
+![Untitled-7](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-7.41y7o21spw.png)
 
 图 2.7 使用 TC 不会造成视图号重复
 
@@ -193,7 +193,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 
 在 Basic HotStuff 中，一个提案的共识需要经过三个阶段，分别产生三个 QC 才能完成。然而，如果每个消息不仅携带当前视图的信息，同时还包含前三个视图的不同阶段的信息，就能实现并行处理，提高效率，如图 3.1 所示。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%208.png)
+![Untitled-8](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-8.1ap5fzfoo5.png)
 
 图 3.1 并行对多个提案进行共识
 
@@ -231,7 +231,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 
 以此往复，每一步也都会重新打包交易，而不是只有 Prepare 阶段打包交易，如图 3.2。注意，Leader 也是一个 Replica，Propose 消息自己也需要处理。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%209.png)
+![Untitled-9](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-9.wipp47dt1.png)
 
 图 3.2 链式共识流程
 
@@ -242,7 +242,7 @@ HotStuff 在生成 LockedQC 阶段前增加一个 Key 阶段，收集投票后�
 
 ViewBlock 和 QC 是 HotStuff 中两个最重要的数据结构。多个 ViewBlock 根据 Hash 指针和 QC 指针组成 ViewBlockChain，示意图如下：
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2010.png)
+![Untitled-10](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-10.7pg53jusm.png)
 
 图 3.3 ViewBlockChain 结构，图中的 QC2 指代针对 View2 生成的 QC
 
@@ -275,13 +275,13 @@ struct ViewBlock {
 
 根据是否拥有 LockedQC 和 CommitQC，将每个 ViewBlock 划分为 New Proposal、Locked、Committed 三种状态，就形成了一条不断提交的 ViewBlockChain 区块链。ViewBlockChain 本质上是一个包含了未提交状态的区块链，每一个块是对 HotStuff 中具体阶段的一次共识，而不仅仅是对该提案是否应该提交的共识。我们平时说的区块链多是指其中已经提交的块，这部分不会分叉，而尚未提交的块是会分叉的，如图 3.4。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2011.png)
+![Untitled-11](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-11.pfhtol8dj.png)
 
 图 3.4 视图链分叉
 
 系统对新提案不断进行共识，当某个提案连续获得两个 QC，该节点状态即为 Locked；连续获得三个 QC，可提交为 Committed 状态，如下图，这与 Basic HotStuff 的三阶段提交是一致的。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2012.png)
+![Untitled-12](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-12.2320xpwaeg.png)
 
 图 3.5 视图块状态变更
 
@@ -317,7 +317,7 @@ struct QC {
 
 其实在 HotStuff 协议中，Leader 不打包 HighQC 也可以满足验证条件。但为了避免恶意节点故意打包旧的 QC 而造成其他视图回滚，避免分叉攻击，我们部分参考了 Fast-HotStuff 协议，要求诚实节点 Leader 必须打包 HighQC，并由 Replicas 进行验证。如图 3.6，如果 Leader 产生了 QC3，却故意打包了 QC2，会造成 View3 被恶意回滚，且频繁分叉会降低系统的吞吐量。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2013.png)
+![Untitled-13](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-13.lvvvys5ns.png)
 
 图 3.6 Leader 打包旧 QC 造成恶意回滚
 
@@ -377,7 +377,7 @@ HotStuff 论文中，Replica 对于新提案的验证是为了保证 HotStuff �
 4. **处理提交后的视图状态**：
     - 提交后，Replica 需要将之前的视图分支「剪掉」，并将其中的交易归还给交易池，等待下一次打包。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2014.png)
+![Untitled-14](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-14.sz3reeb3d.png)
 
 图 3.7 视图块提交触发剪枝
 
@@ -415,19 +415,19 @@ Replica 对当前视图号 CurView 进行签名并发送给 Leader，Leader 收�
 
 CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名消息之前，需要保证`2/3+1` 节点的 HighQC 是一致的。举例来说，发生超时时，如果一半的节点收到了最新的提案并更新了 HighQC，而另一半节点没有收到，由于 HighQC 不一致，系统无法对同一个 CurView 签名并发送消息导致共识卡死，如图 3.8。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2015.png)
+![Untitled-15](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-15.70ahrka27e.png)
 
 图 3.8 超时不广播且无同步情况下视图切换卡死
 
 此外，还存在一种情况，即少数节点持有最新的 HighQC，而大部分节点的 HighQC 还停留在较旧的状态。如图 3.9，当 View5 发生超时时，只有少量节点收到了 QC4 并更新了 HighQC，而大多数节点仍然停留在 QC3。在这种情况下，如果超时节点直接向新 Leader 发送 `TimeoutMsg`（通信复杂度为 `O(n)`），虽然不会影响共识活性，但会导致 QC4 被浪费，降低吞吐量。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2016.png)
+![Untitled-16](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-16.7zql4qctd7.png)
 
 图 3.9 不能收集到最新 HighQC 的情况
 
 所以，应当在保证 `2/3+1` 节点 HighQC 一致的前提下，尽量保证这个 HighQC 是最新的。为了实现这点，HotStuff 通过广播 `TimeoutMsg` 的方式生成 TC，`TimeoutMsg` 包括 HighQC 以及签名后的 CurView，广播起到了同步其中 HighQC 作用，以确保 Leader 收到真正的 HighQC，即使只有少数节点持有该信息。具体流程如图 3.10 所示：
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2017.png)
+![Untitled-17](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-17.41y7o21sq4.png)
 
 图 3.10 Timeout 消息广播过程
 
@@ -453,7 +453,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 
 这里有个细节，一般验证新提案的时候我们要求提案的视图号不能重复（否则 Leader 可以恶意回滚某个视图），即节点不会对已经投过票的视图投票，但在超时情况下，这将会导致之前收到最新 QC 的少数节点后续无法参与共识。仍然以上文中图 3.9 的例子加以说明，即 View5 仅发送给了少数节点而触发超时，如下图。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2018.png)
+![Untitled-18](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-18.2rvahqjtf1.png)
 
 图 3.11 View 号重复性验证会导致少数节点无法参与后续共识
 
@@ -480,7 +480,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 
 当节点发现自己缺失 ViewBlock 时，会尝试向邻居节点同步。邻居节点收到请求后，对比请求者与自己 ViewBlockChain 的差异，将请求者缺失的 ViewBlock 及其对应的 QC 发给该节点，只要 QC 验证通过，该 ViewBlock 就会被加入请求者本地的 ViewBlockChain 中，如下图所示。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2019.png)
+![Untitled-19](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-19.1sf74kh29a.png)
 
 图 3.12 同步未提交 ViewBlocks
 
@@ -490,7 +490,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 
 总之，一旦节点「掉队」，就无法继续参与共识，直到共识节点数量不足而触发视图超时，才能重新跟上进度。因此，系统参与共识的节点数量随着时间变化呈现如下图所示趋势。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2020.png)
+![Untitled-20](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-20.2h8gol4l9q.png)
 
 图 3.13 「掉队」节点无法参与共识，直到节点数量不足而触发超时
 
@@ -515,7 +515,7 @@ CurView 值由 HighQC 和 HighTC 共同决定，因此在收集 CurView 签名�
 
 为避免 `O(n^2)` 的通讯复杂度，同步使用 Gossip 协议，每个周期将本节点信息随机同步给 N 个节点。下图是 Gossip `N=1` 的同步示意，初始仅有一个节点拥有最新状态，每次同步各节点随机选择 1 个节点发送本地数据，经过三次同步后覆盖了全部 5 个节点。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2021.png)
+![Untitled-21](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-21.1ovl6unzjj.png)
 
 图 3.14 N = 1 时，Gossip 需要多次同步才能保证状态一致
 
@@ -583,13 +583,13 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 
 当 Leader 发起一个新视图的共识时，HighQC 和 HighTC 会跟随 ProposeMsg 一同广播给 Replicas，然而如果打包提案失败，刚刚生成的新 QC 也无法同步给 Replicas，只能等待同步，这会大幅拉低系统吞吐量。因此在新提案打包失败时单独对 QC 进行广播，这比等待同步要快的多，如图所示。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2022.png)
+![Untitled-22](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-22.7snd9aqnxs.png)
 
 图 4.1 正常情况，提案打包失败，仅广播 QC
 
 超时生成的 TC 也是如此，如果因为提案打包失败而导致 TC 无法广播，那么 Replica 就会认为视图切换失败不断申请切换该视图，系统便会丧失活性，因此应该在 Propose 失败时单独广播 TC，确保 Replica 能够切换到新的视图，如图所示。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2023.png)
+![Untitled-23](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-23.8ojuor0cdt.png)
 
 图 4.2 超时情况，提案打包失败，仅广播 TC
 
@@ -599,7 +599,7 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 
 因此，Shardora 的交易并不是以 Gossip 进行扩散的，而是由指定的节点接收，并跟随 Propose & Vote 消息在节点之间进行传递的，原理如下图。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2024.png)
+![Untitled-24](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-24.4cl1h7h0vl.png)
 
 图 4.3 交易通过 Propose & Vote 消息传播
 
@@ -615,7 +615,7 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 
 在长时间无交易场景下，较高的超时时间会造成突发交易的较大延迟，系统需要等待一个超时触发的视图切换后才能出块。为此，Shardora 为节点增加了交易监听功能，如图 4.4 所示。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2025.png)
+![Untitled-25](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-25.3d4y41e9pu.png)
 
 图 4.4 新交易到来重置超时时间
 
@@ -628,7 +628,7 @@ Shardora 是一条基于多分片扩容、*支持多交易池并发*的高性能
 
 超时时间和视图号关系如图。
 
-![Untitled](/assets/images/shardora-hotstuff-img/Untitled%2026.png)
+![Untitled-26](https://xufeisofly.github.io/picx-images-hosting/hotstuff/Untitled-26.7zql4qctde.png)
 
 图 4.5 无交易和新交易到来时超时时间变化
 
