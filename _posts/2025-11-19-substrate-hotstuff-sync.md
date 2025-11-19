@@ -22,7 +22,7 @@ Substrate 是 Polkadot SDK 的区块链节点开发框架，我在尝试使用 F
 
 ![image_1](https://xufeisofly.github.io/picx-images-hosting/substrate-hotstuff-sync/image_1.szdnl9e4q.png)
 
-## 三种同步模式
+## 三种同步模式与策略
 一个区块链需要有高效的同步策略以应对不同的同步场景，比如 validator 节点可能突然掉线，需要同步区块回归共识进程，比如非 validator 节点往往是通过从其他节点那里实时同步区块而保持状态，再比如新节点加入网络后，需要尽快同步所有数据。
 
 Substrate 提供了三种同步模式，
