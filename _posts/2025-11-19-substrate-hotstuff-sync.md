@@ -118,7 +118,7 @@ StateSync 用来在本地区块头已拿到(有目标 header / body / justificat
 
 一个 State 请求如下：
 
-```rust
+```
 StateRequest {
   block: target_hash,
   start: last_key (可能是多段：主 trie 或子 trie 路径),
