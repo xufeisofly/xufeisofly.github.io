@@ -29,7 +29,7 @@ Substrate 提供了三种同步模式，
 
 + Full Mode：同步完整的缺失区块，包含 header 和 body，并执行 body 中的交易，相当于 Replay，性能最差，适合已运行节点某区块缺失时的偶发同步。
 + LightState Mode：仅同步缺失区块的 header，不执行交易，最后同步最新区块对应的 State 快照，用于节点区块相差很多时快速追赶。
-+ Warp Mode：直接同步最新 finalized 的区块 header 以及对应的 State 快照，让节点快速获取最新状态，之后在后台逐渐同步历史区块，比较适用于新节点加入网络。
++ Warp Mode：直接同步最新 finalized 的区块 header 以及对应的 State 快照，让节点快速获取最新状态，之后在后台逐渐同步历史区块，比较适用于新节点加入网络。这是本文讨论的重点。
 
 在实现上，Substrate 设计了三种同步 Strategy，对应了代码中三个模块：
 
@@ -146,6 +146,8 @@ self.actions.push(SyncingAction::ImportBlocks { origin, blocks: vec![block] });
 ```
 
 ## WarpSync - 快照同步
+重点来了。
+
 ### BFT 快照同步的基本思路
 一个新节点的加入，不可能使用 Full Mode 或者 LightState Mode 从创世块逐一开始同步，即使只同步 Block Header 也是一个线性增长的复杂度，因此我们需要快照级别的同步，即直接同步最新的 Finalized 区块及其状态，并从该区块往后继续同步。我们可以称这个最新的 Finalized 区块为 Target Block。
 
