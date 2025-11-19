@@ -8,7 +8,7 @@ tags:
 - blockchain
 ---
 
-Substrate 是 Polkadot SDK 的区块链节点开发框架，我在尝试使用 Fast Hotstuff 替换其默认的共识和最终性协议（Aura + Grandpa），期间遇到一些有趣的问题，在此记录供读者参考。
+Substrate 是 Polkadot SDK 的区块链节点开发框架，我在尝试使用 Fast Hotstuff 替换其默认的共识和最终性协议（Aura + Grandpa），将期间遇到的知识、问题和思考在此记录。
 
 由于接入了 Hotstuff 后区块链的吞吐量增大很多，使得新节点加入更难追上共识产出新区块的速度，Substrate 中虽然提供了 Warp Sync，但由于其与 Grandpa 耦合，在接入时也遇到了一些问题，我参考了 Tendermint 的 State sync 设计，简化默认的快照同步逻辑，同时对源码的一些修改也在这里记录，供读者参考。
 
