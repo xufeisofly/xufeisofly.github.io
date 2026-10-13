@@ -96,6 +96,8 @@ defaults:
 
 # Exclude
 exclude:
+  - AGENTS.md
+  - README.md
   - .sass-cache/
   - .jekyll-cache/
   - gemfiles/
